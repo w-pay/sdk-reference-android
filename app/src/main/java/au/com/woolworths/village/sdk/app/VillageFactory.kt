@@ -1,7 +1,6 @@
 package au.com.woolworths.village.sdk.app
 
 import au.com.woolworths.village.sdk.*
-import au.com.woolworths.village.sdk.auth.CustomerLoginApiAuthenticator
 import au.com.woolworths.village.sdk.auth.IdmTokenDetails
 import au.com.woolworths.village.sdk.auth.StoringApiAuthenticator
 import au.com.woolworths.village.sdk.openapi.OpenApiVillageCustomerApiRepository
