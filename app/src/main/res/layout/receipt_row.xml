@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_marginTop="12dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+>
+    <!-- Use a really long string for the text to test wrapping -->
+    <TextView
+        android:id="@+id/item"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="4"
+        style="@style/ReceiptRow"
+        tools:text="WW Creamy Pumpkin Soup WW Creamy Pumpkin Soup WW Creamy Pumpkin Soup WW Creamy Pumpkin Soup"
+    />
+
+    <TextView
+        android:id="@+id/amount"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        style="@style/ReceiptRow.Amount"
+        android:textAlignment="textEnd"
+        tools:text="$10,000.00"
+    />
+</LinearLayout>

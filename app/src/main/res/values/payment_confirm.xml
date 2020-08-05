@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pay">Pay</string>
+    <string name="paying">Paying</string>
+    <string name="payment_error_title">Payment Missing</string>
+    <string name="authentication_failed">Oops! Authentication failed!</string>
+    <string name="missing_qr_code">Oops! No payment details.\nDid you scan a QR code?</string>
+    <string name="payment_retrieve_details_error">Oops! Can\'t get payment details.</string>
+    <string name="payment_instruments_retrieve_error">Oops! Can\'t retrieve payment instruments.</string>
+    <string name="payment_failed">Oops! Something went wrong.</string>
+</resources>

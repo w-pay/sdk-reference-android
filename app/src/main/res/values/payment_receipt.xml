@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="paid">Paid</string>
+    <string name="card_logo">card logo</string>
+    <string name="receipt_heading">Purchased</string>
+    <string name="totals_heading">Total</string>
+    <string name="items_count">%1$s items</string>
+    <string name="gst_heading">Including GST</string>
+    <string name="instrument_details">Credit Card \u00E2\u0080\u00A2\u00E2\u0080\u00A2\u00E2\u0080\u00A2\u00E2\u0080\u00A2 %1$s</string>
+</resources>

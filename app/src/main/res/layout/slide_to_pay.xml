@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+>
+    <!--
+        Keep the background as a separate view so we can
+        perform animations on it.
+    -->
+    <View
+        android:id="@+id/background"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:background="@drawable/slide_to_pay_background"
+    />
+
+    <TextView
+        android:id="@+id/centerText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/slide_to_pay_text"
+        android:textSize="17sp"
+        android:textStyle="bold"
+        android:layout_gravity="center"
+    />
+
+    <FrameLayout
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+    >
+        <ImageView
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:paddingStart="15dp"
+            android:paddingEnd="15dp"
+            android:background="@drawable/slide_to_pay_button"
+            android:src="@drawable/mastercard"
+            android:contentDescription="@string/card_logo" />
+
+        <ProgressBar
+            android:id="@+id/paymentProgress"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="57dp"
+            android:layout_height="57dp"
+            android:layout_margin="1dp"
+            android:indeterminateTint="#fcfcfc"
+            android:visibility="invisible"
+            tools:visibility="visible"
+        />
+    </FrameLayout>
+</FrameLayout>
