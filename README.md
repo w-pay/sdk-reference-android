@@ -64,6 +64,8 @@ wallet
         -> app
         -> sdk
     -> openapi
+        -> android
+        -> ios
  ```
 
 The paths can be adjusted in the `settings.gradle` to have the Gradle
