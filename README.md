@@ -1,4 +1,4 @@
-# Village Wallet Android SDK Reference App
+# Woolies Village Wallet Android SDK Reference App
 
 This app show cases the use of the Village Customer APIs.
 
@@ -13,6 +13,13 @@ then make the payment using an instrument.
 This workflow showcases the use of the Village Customer API, including
 how to instantiate the SDK and integrate it into an application.
 
+The entry point into the app is the `PaymentConfirm` Activity which holds
+an instance of the `Village` API in the `ViewModel`.
+
+In order to retrieve the `Payment Request` details, the
+`Payment Instruments` and to actually make a payment, the application
+demonstrates the use of Bearer tokens to access the API.
+
 For an existing application, hopefully it can be deduced to incorporate
 the SDK from the `VillageFactory`. Everything in the SDK conforms to an
 interface, so if applications have a specific requirement or existing
@@ -20,6 +27,13 @@ technology/authentication requirements and class that implements the
 interface can be used.
 
 ### Postman collection
+
+In order to use the app, a merchant has to create the `Payment Request`
+for a basket of goods. The Postman collection in this repo can be used
+to make API calls to the Village "Merchant" API to simulate a merchant.
+To use the collection, import both the collection and the environment details
+into Postman. The collection is parameterised so it can be used against
+different environments.
 
 In order to create a `Payment Request` the `Create Payment Request` request
 in the Postman collection can be used. To get the QR code (as an image)
