@@ -15,7 +15,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import au.com.woolworths.village.sdk.app.*
 import au.com.woolworths.village.sdk.app.databinding.PaymentConfirmBinding
 import au.com.woolworths.village.sdk.ApiResult
 import au.com.woolworths.village.sdk.Wallet
@@ -294,7 +293,7 @@ class ViewModel : androidx.lifecycle.ViewModel() {
         viewModelScope.launch {
              withContext(Dispatchers.IO) {
                  paymentResult.postValue(village.makePayment(
-                     paymentRequestRequest,
+                     paymentRequestRequest.paymentRequestId(),
                      selectedPaymentInstrument
                  ))
              }
@@ -312,7 +311,7 @@ class ViewModel : androidx.lifecycle.ViewModel() {
     fun retrievePaymentDetails(qrCodeId: String) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                val result = village.retrievePaymentDetails(qrCodeId)
+                val result = village.retrievePaymentRequestDetailsByQRCode(qrCodeId)
 
                 when (result) {
                     is ApiResult.Success -> paymentRequestRequest = result.value
