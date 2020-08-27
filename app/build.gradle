@@ -83,9 +83,10 @@ dependencies {
     implementation "com.microsoft.appcenter:appcenter-crashes:${app_center_version}"
     implementation "com.microsoft.appcenter:appcenter-distribute:${app_center_version}"
 
-    // see settings.gradle
-    implementation "au.com.woolworths.village.sdk:sdk:2.0.0"
-    implementation "au.com.woolworths.village.sdk.openapi:lib:1.1.0"
+    implementation("au.com.woolworths.village.sdk:sdk:2.0.0")
+    implementation("au.com.woolworths.village.sdk.openapi:lib:2.0.0@aar")
+    implementation("io.gsonfire:gson-fire:1.8.3")
+    implementation("org.threeten:threetenbp:1.4.4")
 
     implementation 'com.squareup.okhttp3:okhttp:4.7.2'
     implementation 'com.google.code.gson:gson:2.8.6'
