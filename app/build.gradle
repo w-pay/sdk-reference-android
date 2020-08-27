@@ -6,6 +6,14 @@ Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
 def contextRoot = properties.getProperty('qr.context.root', "/wow/v1/pay/dev4/instore")
 
+repositories {
+    google()
+    jcenter()
+    maven {
+        url "https://packagecloud.io/priv/bc13bd84498902eb8e175af58317f7564db01fa74c03db1b/woolworths/paysdk2/maven2"
+    }
+}
+
 android {
     compileSdkVersion rootProject.ext.targetSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -76,7 +84,7 @@ dependencies {
     implementation "com.microsoft.appcenter:appcenter-distribute:${app_center_version}"
 
     // see settings.gradle
-    implementation "au.com.woolworths.village.sdk:sdk:1.1.0"
+    implementation "au.com.woolworths.village.sdk:sdk:2.0.0"
     implementation "au.com.woolworths.village.sdk.openapi:lib:1.1.0"
 
     implementation 'com.squareup.okhttp3:okhttp:4.7.2'
