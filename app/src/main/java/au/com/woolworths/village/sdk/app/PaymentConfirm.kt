@@ -294,7 +294,10 @@ class ViewModel : androidx.lifecycle.ViewModel() {
              withContext(Dispatchers.IO) {
                  paymentResult.postValue(village.makePayment(
                      paymentRequestRequest.paymentRequestId(),
-                     selectedPaymentInstrument
+                     selectedPaymentInstrument,
+                     null,
+                     null,
+                     null
                  ))
              }
         }
@@ -311,7 +314,7 @@ class ViewModel : androidx.lifecycle.ViewModel() {
     fun retrievePaymentDetails(qrCodeId: String) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                val result = village.retrievePaymentRequestDetailsByQRCode(qrCodeId)
+                val result = village.retrievePaymentRequestDetailsByQRCodeId(qrCodeId)
 
                 when (result) {
                     is ApiResult.Success -> paymentRequestRequest = result.value
