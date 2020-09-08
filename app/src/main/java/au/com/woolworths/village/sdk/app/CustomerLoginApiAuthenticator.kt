@@ -1,8 +1,8 @@
 package au.com.woolworths.village.sdk.app
 
 import android.util.Log
-import au.com.woolworths.village.sdk.ApiException
 import au.com.woolworths.village.sdk.ApiResult
+import au.com.woolworths.village.sdk.HttpErrorException
 import au.com.woolworths.village.sdk.RequestHeadersFactory
 import au.com.woolworths.village.sdk.auth.ApiAuthenticator
 import au.com.woolworths.village.sdk.auth.IdmTokenDetails
@@ -46,7 +46,7 @@ class CustomerLoginApiAuthenticator(
                 return ApiResult.Success(result)
             }
 
-            return ApiResult.Error(ApiException(response.code, response.headers.toMultimap(), body))
+            return ApiResult.Error(HttpErrorException(response.code, response.headers.toMultimap(), body))
         }
     }
 

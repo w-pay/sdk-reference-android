@@ -40,27 +40,27 @@ class PaymentReceipt : AppCompatActivity() {
 
     private fun bindPaymentToReceipt() {
         val payment: CustomerPaymentRequest = intent.getSerializableExtra(PAYMENT) as CustomerPaymentRequest
-        basketItemsAdapter = payment.basket()?.items()?.let { BasketItemsAdapter(it) }!!
+        basketItemsAdapter = payment.basket?.items?.let { BasketItemsAdapter(it) }!!
         basketItemsManager = LinearLayoutManager(this)
 
-        val amount = currencyFormat.format(payment.grossAmount())
+        val amount = currencyFormat.format(payment.grossAmount)
         bindings.amountPaid.text = amount
         bindings.basketItems.apply {
             layoutManager = basketItemsManager
             adapter = basketItemsAdapter
         }
 
-        bindings.totalRow.item.text = getString(R.string.items_count).format(payment.basket()?.items()?.size)
+        bindings.totalRow.item.text = getString(R.string.items_count).format(payment.basket?.items?.size)
         bindings.totalRow.amount.text = amount
 
         bindings.taxRow.item.text = getString(R.string.gst_heading)
-        bindings.taxRow.amount.text = currencyFormat.format(calculateGST(payment.grossAmount()))
+        bindings.taxRow.amount.text = currencyFormat.format(calculateGST(payment.grossAmount))
     }
 
     private fun bindInstrumentToReceipt() {
         val paymentInstrument: PaymentInstrument = intent.getSerializableExtra(INSTRUMENT) as PaymentInstrument
 
-        bindings.paymentInstrument.text = toUtf8(getString(R.string.instrument_details).format(paymentInstrument.cardSuffix()))
+        bindings.paymentInstrument.text = toUtf8(getString(R.string.instrument_details).format(paymentInstrument.cardSuffix))
     }
 
     private fun calculateGST(amount: BigDecimal): BigDecimal {
@@ -84,8 +84,8 @@ class PaymentReceipt : AppCompatActivity() {
         override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
             val item = items[position]
 
-            holder.itemView.item.text = item.label()
-            holder.itemView.amount.text = currencyFormat.format(item.totalPrice())
+            holder.itemView.item.text = item.label
+            holder.itemView.amount.text = currencyFormat.format(item.totalPrice)
         }
 
         override fun getItemCount(): Int = items.size

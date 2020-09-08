@@ -148,7 +148,7 @@ class PaymentConfirm : AppCompatActivity() {
         data.paymentRequest.value?.let {
             when (it) {
                 is ApiResult.Success -> {
-                    bindings.amountToPay.text = currencyFormat.format(it.value.grossAmount())
+                    bindings.amountToPay.text = currencyFormat.format(it.value.grossAmount)
                 }
 
                 is ApiResult.Error -> {
@@ -163,7 +163,7 @@ class PaymentConfirm : AppCompatActivity() {
         data.paymentInstruments.value?.let {
             when (it) {
                 is ApiResult.Success -> {
-                    if (it.value.creditCards().isEmpty()) {
+                    if (it.value.creditCards.isEmpty()) {
                         Log.e("PaymentConfirm", "No credit cards returned from API")
                         showMissingDetailsError(R.string.payment_instruments_retrieve_error)
                     }
@@ -293,7 +293,7 @@ class ViewModel : androidx.lifecycle.ViewModel() {
         viewModelScope.launch {
              withContext(Dispatchers.IO) {
                  paymentResult.postValue(village.makePayment(
-                     paymentRequestRequest.paymentRequestId(),
+                     paymentRequestRequest.paymentRequestId,
                      selectedPaymentInstrument,
                      null,
                      null,
@@ -343,9 +343,9 @@ class ViewModel : androidx.lifecycle.ViewModel() {
 
                 when (result) {
                     is ApiResult.Success -> {
-                        if (result.value.creditCards().isNotEmpty()) {
+                        if (result.value.creditCards.isNotEmpty()) {
                             // TODO: We pick a card by default.
-                            selectedPaymentInstrument = result.value.creditCards()[0]
+                            selectedPaymentInstrument = result.value.creditCards[0]
                         }
                     }
                 }
