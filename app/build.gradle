@@ -83,8 +83,8 @@ dependencies {
     implementation "com.microsoft.appcenter:appcenter-crashes:${app_center_version}"
     implementation "com.microsoft.appcenter:appcenter-distribute:${app_center_version}"
 
-    implementation("au.com.woolworths.village.sdk:sdk:3.0.0")
-    implementation("au.com.woolworths.village.sdk.openapi:lib:3.0.0")
+    implementation("au.com.woolworths.village.sdk:sdk:3.1.0")
+    implementation("au.com.woolworths.village.sdk.openapi:lib:3.1.0")
 
     implementation 'com.squareup.okhttp3:okhttp:4.7.2'
     implementation 'com.google.code.gson:gson:2.8.6'
