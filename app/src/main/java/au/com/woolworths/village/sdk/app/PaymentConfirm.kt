@@ -18,7 +18,6 @@ import androidx.lifecycle.viewModelScope
 import au.com.woolworths.village.sdk.app.databinding.PaymentConfirmBinding
 import au.com.woolworths.village.sdk.ApiResult
 import au.com.woolworths.village.sdk.Wallet
-import au.com.woolworths.village.sdk.auth.IdmTokenDetails
 import au.com.woolworths.village.sdk.model.CustomerPaymentRequest
 import au.com.woolworths.village.sdk.model.CustomerTransactionSummary
 import au.com.woolworths.village.sdk.model.PaymentInstrument

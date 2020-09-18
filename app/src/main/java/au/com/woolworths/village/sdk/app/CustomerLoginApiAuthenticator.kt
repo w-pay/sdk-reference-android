@@ -5,7 +5,6 @@ import au.com.woolworths.village.sdk.ApiResult
 import au.com.woolworths.village.sdk.HttpErrorException
 import au.com.woolworths.village.sdk.RequestHeadersFactory
 import au.com.woolworths.village.sdk.auth.ApiAuthenticator
-import au.com.woolworths.village.sdk.auth.IdmTokenDetails
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import okhttp3.MediaType.Companion.toMediaType
