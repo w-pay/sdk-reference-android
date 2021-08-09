@@ -9,9 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 import au.com.woolworths.village.sdk.app.databinding.PaymentReceiptBinding
-import au.com.woolworths.village.sdk.model.Basket
-import au.com.woolworths.village.sdk.model.CustomerPaymentRequest
-import au.com.woolworths.village.sdk.model.PaymentInstrument
+import au.com.woolworths.village.sdk.model.*
 import kotlinx.android.synthetic.main.receipt_row.view.*
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -58,9 +56,10 @@ class PaymentReceipt : AppCompatActivity() {
     }
 
     private fun bindInstrumentToReceipt() {
-        val paymentInstrument: PaymentInstrument = intent.getSerializableExtra(INSTRUMENT) as PaymentInstrument
+        val paymentInstrument: String = intent.getStringExtra(INSTRUMENT)
 
-        bindings.paymentInstrument.text = toUtf8(getString(R.string.instrument_details).format(paymentInstrument.cardSuffix))
+        bindings.paymentInstrument.text =
+            toUtf8(getString(R.string.instrument_details).format(paymentInstrument))
     }
 
     private fun calculateGST(amount: BigDecimal): BigDecimal {
@@ -71,7 +70,7 @@ class PaymentReceipt : AppCompatActivity() {
         String(str.toByteArray(Charset.forName("ISO-8859-1")), Charset.forName("UTF-8"))
 
     class BasketItemsAdapter(private val items: List<Basket.Items>) : RecyclerView.Adapter<BasketItemsAdapter.ItemViewHolder>() {
-        class ItemViewHolder(private val view: View) : RecyclerView.ViewHolder(view)
+        class ItemViewHolder(view: View) : RecyclerView.ViewHolder(view)
 
         private val currencyFormat: NumberFormat = NumberFormat.getCurrencyInstance()
 

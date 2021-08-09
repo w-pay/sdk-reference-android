@@ -1,30 +1,31 @@
 package au.com.woolworths.village.sdk.app
 
 import au.com.woolworths.village.sdk.*
-import au.com.woolworths.village.sdk.auth.StoringApiAuthenticator
-import au.com.woolworths.village.sdk.openapi.OpenApiVillageCustomerApiRepository
+import au.com.woolworths.village.sdk.auth.ApiAuthenticator
+import au.com.woolworths.village.sdk.auth.HasAccessToken
+import au.com.woolworths.village.sdk.openapi.OpenApiCustomerApiRepositoryFactory
 
-fun createCustomerVillage(): CustomerVillage<IdmTokenDetails> {
-    val options = VillageOptions("haTdoUWVhnXm5n75u6d0VG67vCCvKjQC")
-    val apiKeyRequestHeader = ApiKeyRequestHeader(options)
-    val bearerTokenRequestHeader = BearerTokenRequestHeader<IdmTokenDetails>()
-    val api =
-        OpenApiVillageCustomerApiRepository(
-            RequestHeaderChain(
-                arrayOf(
-                    apiKeyRequestHeader,
-                    bearerTokenRequestHeader,
-                    WalletIdRequestHeader()
-                )
-            ),
-            BuildConfig.API_CONTEXT_ROOT
-        )
-
-    val customerLogin = CustomerLoginApiAuthenticator(
-        RequestHeaderChain(arrayOf(apiKeyRequestHeader)),
-        "/wow/v1/idm/servers/token"
+fun createCustomerSDK(
+    options: VillageCustomerOptions,
+    authenticator: ApiAuthenticator<HasAccessToken>
+): VillageCustomerApiRepository =
+    createCustomerSDK(
+        options,
+        // see the docs on how we can use different token types.
+        ApiTokenType.ApiAuthenticatorToken(authenticator),
+        OpenApiCustomerApiRepositoryFactory
     )
-    val authentication = StoringApiAuthenticator(customerLogin, bearerTokenRequestHeader)
 
-    return CustomerVillage(api, authentication)
+fun createCustomerLoginAuthenticator(
+    options: VillageOptions,
+    origin: String
+): CustomerLoginApiAuthenticator {
+    val authenticator = CustomerLoginApiAuthenticator(
+        requestHeaders = RequestHeaderChain(listOf(ApiKeyRequestHeader(options))),
+        path = "/wow/v1/idm/servers/token"
+    )
+
+    authenticator.setOrigin(origin)
+
+    return authenticator
 }

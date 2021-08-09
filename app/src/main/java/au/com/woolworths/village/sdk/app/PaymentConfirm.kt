@@ -15,12 +15,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import au.com.woolworths.village.sdk.app.databinding.PaymentConfirmBinding
 import au.com.woolworths.village.sdk.ApiResult
-import au.com.woolworths.village.sdk.Wallet
+import au.com.woolworths.village.sdk.VillageCustomerApiRepository
+import au.com.woolworths.village.sdk.VillageCustomerOptions
+import au.com.woolworths.village.sdk.app.databinding.PaymentConfirmBinding
+import au.com.woolworths.village.sdk.auth.HasAccessToken
+import au.com.woolworths.village.sdk.model.CardPaymentInstrument
 import au.com.woolworths.village.sdk.model.CustomerPaymentRequest
 import au.com.woolworths.village.sdk.model.CustomerTransactionSummary
-import au.com.woolworths.village.sdk.model.PaymentInstrument
 import au.com.woolworths.village.sdk.model.PaymentInstruments
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
@@ -32,6 +34,7 @@ import com.microsoft.appcenter.distribute.UpdateTrack
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.Serializable
 import java.text.NumberFormat
 import kotlin.math.roundToInt
 
@@ -95,7 +98,7 @@ class PaymentConfirm : AppCompatActivity() {
            is ApiResult.Success -> {
                val intent = Intent(this, PaymentReceipt::class.java).apply {
                    putExtra(PAYMENT, paymentData.paymentRequestRequest)
-                   putExtra(INSTRUMENT, paymentData.selectedPaymentInstrument)
+                   putExtra(INSTRUMENT, paymentData.selectedPaymentInstrument.cardSuffix)
                }
 
                startActivity(intent)
@@ -277,23 +280,24 @@ class PaymentConfirm : AppCompatActivity() {
 }
 
 class ViewModel : androidx.lifecycle.ViewModel() {
-    private val village = createCustomerVillage()
-
-    val authenticationDetails: MutableLiveData<ApiResult<IdmTokenDetails>> = MutableLiveData()
+    val authenticationDetails: MutableLiveData<ApiResult<HasAccessToken>> = MutableLiveData()
     val qrCodeId: MutableLiveData<String?> = MutableLiveData()
     val paymentRequest: MutableLiveData<ApiResult<CustomerPaymentRequest>> = MutableLiveData()
     val paymentInstruments: MutableLiveData<ApiResult<PaymentInstruments>> = MutableLiveData()
     val paymentResult: MutableLiveData<ApiResult<CustomerTransactionSummary>> = MutableLiveData()
 
+    lateinit var village: VillageCustomerApiRepository
     lateinit var paymentRequestRequest: CustomerPaymentRequest
-    lateinit var selectedPaymentInstrument: PaymentInstrument
+    lateinit var selectedPaymentInstrument: CardPaymentInstrument
 
     fun makePayment() {
         viewModelScope.launch {
              withContext(Dispatchers.IO) {
-                 paymentResult.postValue(village.makePayment(
+                 paymentResult.postValue(village.paymentRequests.makePayment(
                      paymentRequestRequest.paymentRequestId,
-                     selectedPaymentInstrument,
+                     selectedPaymentInstrument.paymentInstrumentId,
+                     null,
+                     null,
                      null,
                      null,
                      null
@@ -305,7 +309,7 @@ class ViewModel : androidx.lifecycle.ViewModel() {
     fun retrieveAuthToken() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                authenticationDetails.postValue(village.authenticate())
+                authenticationDetails.postValue(village.authenticator.authenticate())
             }
         }
     }
@@ -313,10 +317,11 @@ class ViewModel : androidx.lifecycle.ViewModel() {
     fun retrievePaymentDetails(qrCodeId: String) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                val result = village.retrievePaymentRequestDetailsByQRCodeId(qrCodeId)
+                val result = village.paymentRequests.getByQRCodeId(qrCodeId)
 
                 when (result) {
                     is ApiResult.Success -> paymentRequestRequest = result.value
+                    else -> {}
                 }
 
                 paymentRequest.postValue(result)
@@ -338,7 +343,7 @@ class ViewModel : androidx.lifecycle.ViewModel() {
     fun retrievePaymentInstruments() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                val result = village.retrievePaymentInstruments(Wallet.MERCHANT)
+                val result = village.instruments.list()
 
                 when (result) {
                     is ApiResult.Success -> {
@@ -347,6 +352,7 @@ class ViewModel : androidx.lifecycle.ViewModel() {
                             selectedPaymentInstrument = result.value.creditCards[0]
                         }
                     }
+                    else -> {}
                 }
 
                 paymentInstruments.postValue(result)
@@ -356,8 +362,21 @@ class ViewModel : androidx.lifecycle.ViewModel() {
 
     private fun setHostname(qrCodeContents: Uri) {
         val port: String = if (qrCodeContents.port > -1) ":${qrCodeContents.port}" else ""
+        val contextRoot = contextRootFrom(qrCodeContents)
         val hostname = "${qrCodeContents.scheme}://${qrCodeContents.host}${port}"
 
-        village.setHost(hostname)
+        val options = VillageCustomerOptions(
+            baseUrl = "${hostname}${contextRoot}",
+            apiKey = "haTdoUWVhnXm5n75u6d0VG67vCCvKjQC"
+        )
+
+        val authenticator = createCustomerLoginAuthenticator(options, hostname)
+
+        village = createCustomerSDK(options, authenticator)
     }
+
+    private fun contextRootFrom(qrCodeContents: Uri): String =
+        "/" + qrCodeContents.pathSegments
+            .takeWhile { it != "instore" }
+            .joinToString("/")
 }
