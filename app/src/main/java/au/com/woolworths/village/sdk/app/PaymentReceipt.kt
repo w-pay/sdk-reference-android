@@ -56,10 +56,10 @@ class PaymentReceipt : AppCompatActivity() {
     }
 
     private fun bindInstrumentToReceipt() {
-        val paymentInstrument: String = intent.getStringExtra(INSTRUMENT)
+        val paymentInstrument = intent.getSerializableExtra(INSTRUMENT) as CardPaymentInstrument
 
         bindings.paymentInstrument.text =
-            toUtf8(getString(R.string.instrument_details).format(paymentInstrument))
+            toUtf8(getString(R.string.instrument_details).format(paymentInstrument.cardSuffix))
     }
 
     private fun calculateGST(amount: BigDecimal): BigDecimal {

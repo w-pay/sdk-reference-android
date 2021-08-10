@@ -76,8 +76,8 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     implementation 'com.google.android.material:material:1.1.0'
 
-    implementation("au.com.woolworths.village.sdk:sdk:4.2.0")
-    implementation("au.com.woolworths.village.sdk.openapi:lib:4.2.0")
+    implementation("au.com.woolworths.village.sdk:sdk:4.2.1")
+    implementation("au.com.woolworths.village.sdk.openapi:lib:4.2.1")
 
     implementation 'com.squareup.okhttp3:okhttp:4.7.2'
     implementation 'com.google.code.gson:gson:2.8.6'

@@ -83,7 +83,7 @@ class PaymentConfirm : AppCompatActivity() {
            is ApiResult.Success -> {
                val intent = Intent(this, PaymentReceipt::class.java).apply {
                    putExtra(PAYMENT, paymentData.paymentRequestRequest)
-                   putExtra(INSTRUMENT, paymentData.selectedPaymentInstrument.cardSuffix)
+                   putExtra(INSTRUMENT, paymentData.selectedPaymentInstrument)
                }
 
                startActivity(intent)
