@@ -26,11 +26,6 @@ import au.com.woolworths.village.sdk.model.CustomerTransactionSummary
 import au.com.woolworths.village.sdk.model.PaymentInstruments
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
-import com.microsoft.appcenter.AppCenter
-import com.microsoft.appcenter.analytics.Analytics
-import com.microsoft.appcenter.crashes.Crashes
-import com.microsoft.appcenter.distribute.Distribute
-import com.microsoft.appcenter.distribute.UpdateTrack
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -49,16 +44,6 @@ class PaymentConfirm : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        if (!AppCenter.isConfigured() ) {
-            Distribute.setUpdateTrack(UpdateTrack.PRIVATE)
-            Distribute.setEnabledForDebuggableBuild(true)
-
-            AppCenter.start(application, getString(R.string.app_center_secret),
-                Analytics::class.java,
-                Crashes::class.java,
-                Distribute::class.java)
-        }
 
         animationDuration = resources.getInteger(android.R.integer.config_shortAnimTime).toLong()
 
