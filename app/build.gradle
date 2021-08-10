@@ -33,8 +33,6 @@ android {
             qr_pattern: "${contextRoot}/customer/qr/.*"
         ]
 
-        buildConfigField 'String', 'API_CONTEXT_ROOT', "\"${contextRoot.toString()}\""
-
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
