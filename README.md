@@ -20,7 +20,7 @@ In order to retrieve the `Payment Request` details, the
 `Payment Instruments` and to actually make a payment, the application
 demonstrates the use of Bearer tokens to access the API.
 
-For an existing application, hopefully it can be deduced to incorporate
+For an existing application, hopefully it can be deduced how to incorporate
 the SDK from the `VillageFactory`. Everything in the SDK conforms to an
 interface, so if applications have a specific requirement or existing
 technology/authentication requirements and class that implements the
@@ -62,25 +62,3 @@ The application continues with the versioning scheme from the previous
 repo to make it less confusing, however the application built from this
 repo has a different package name, so any previous versions will need to
 be uninstalled as they are deprecated.
-
-# Dependency management
-
-Due to not yet having access to a repository like JCenter or Artifactory
-the dependencies are included via Gradle [Composite Builds](https://docs.gradle.org/current/userguide/composite_builds.html)
-and as such need to be checked out in order for the application to be
-built from source.
-
-The directory structure expected is
-
-```
-wallet
-    -> android
-        -> app
-        -> sdk
-    -> openapi
-        -> android
-        -> ios
- ```
-
-The paths can be adjusted in the `settings.gradle` to have the Gradle
- find the projects.
