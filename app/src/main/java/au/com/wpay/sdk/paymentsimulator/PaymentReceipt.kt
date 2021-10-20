@@ -1,4 +1,4 @@
-package au.com.woolworths.village.sdk.app
+package au.com.wpay.sdk.paymentsimulator
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,9 +7,10 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-
-import au.com.woolworths.village.sdk.app.databinding.PaymentReceiptBinding
-import au.com.woolworths.village.sdk.model.*
+import au.com.woolworths.village.sdk.model.Basket
+import au.com.woolworths.village.sdk.model.CardPaymentInstrument
+import au.com.woolworths.village.sdk.model.CustomerPaymentRequest
+import au.com.wpay.sdk.paymentsimulator.databinding.PaymentReceiptBinding
 import kotlinx.android.synthetic.main.receipt_row.view.*
 import java.math.BigDecimal
 import java.math.RoundingMode

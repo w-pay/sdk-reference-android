@@ -1,4 +1,4 @@
-package au.com.woolworths.village.sdk.app
+package au.com.wpay.sdk.paymentsimulator
 
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
@@ -18,18 +18,17 @@ import androidx.lifecycle.viewModelScope
 import au.com.woolworths.village.sdk.ApiResult
 import au.com.woolworths.village.sdk.VillageCustomerApiRepository
 import au.com.woolworths.village.sdk.VillageCustomerOptions
-import au.com.woolworths.village.sdk.app.databinding.PaymentConfirmBinding
 import au.com.woolworths.village.sdk.auth.HasAccessToken
 import au.com.woolworths.village.sdk.model.CardPaymentInstrument
 import au.com.woolworths.village.sdk.model.CustomerPaymentRequest
 import au.com.woolworths.village.sdk.model.CustomerTransactionSummary
 import au.com.woolworths.village.sdk.model.PaymentInstruments
+import au.com.wpay.sdk.paymentsimulator.databinding.PaymentConfirmBinding
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.Serializable
 import java.text.NumberFormat
 import kotlin.math.roundToInt
 
@@ -241,11 +240,11 @@ class PaymentConfirm : AppCompatActivity() {
 
     private fun showErrorDialog(messageId: Int) {
         if (dialog == null) {
-            val builder: AlertDialog.Builder? = this.let {
+            val builder: AlertDialog.Builder = this.let {
                 AlertDialog.Builder(it)
             }
 
-            builder?.apply {
+            builder.apply {
                 setCancelable(false)
                 setMessage(messageId)
                 setTitle(R.string.payment_error_title)
@@ -255,7 +254,7 @@ class PaymentConfirm : AppCompatActivity() {
                 }
             }
 
-            dialog = builder?.create()
+            dialog = builder.create()
             dialog?.show()
         }
         else {

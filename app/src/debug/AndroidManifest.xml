@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
-    package="au.com.woolworths.village.sdk.app">
+    package="au.com.wpay.sdk.paymentsimulator">
 
     <application
         android:usesCleartextTraffic="true"
     >
-        <activity android:name="au.com.woolworths.village.sdk.app.PaymentConfirm">
+        <activity android:name="au.com.wpay.sdk.paymentsimulator.PaymentConfirm">
             <intent-filter android:label="@string/app_name">
                 <action android:name="android.intent.action.VIEW" />
 

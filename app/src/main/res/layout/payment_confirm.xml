@@ -41,7 +41,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         style="@style/BottomSheet">
-        <au.com.woolworths.village.sdk.app.SlideToPay
+        <au.com.wpay.sdk.paymentsimulator.SlideToPay
             android:id="@+id/slideToPay"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

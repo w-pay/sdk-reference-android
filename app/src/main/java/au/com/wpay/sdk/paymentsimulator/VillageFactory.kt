@@ -1,4 +1,4 @@
-package au.com.woolworths.village.sdk.app
+package au.com.wpay.sdk.paymentsimulator
 
 import au.com.woolworths.village.sdk.*
 import au.com.woolworths.village.sdk.auth.ApiAuthenticator

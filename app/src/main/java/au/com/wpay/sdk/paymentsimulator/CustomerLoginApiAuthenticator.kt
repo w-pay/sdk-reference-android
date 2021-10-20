@@ -1,4 +1,4 @@
-package au.com.woolworths.village.sdk.app
+package au.com.wpay.sdk.paymentsimulator
 
 import android.util.Log
 import au.com.woolworths.village.sdk.ApiResult

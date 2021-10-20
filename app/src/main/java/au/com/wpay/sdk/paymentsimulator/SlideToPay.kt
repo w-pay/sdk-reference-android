@@ -1,5 +1,6 @@
-package au.com.woolworths.village.sdk.app
+package au.com.wpay.sdk.paymentsimulator
 
+import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.content.Context
 import android.util.AttributeSet
@@ -7,7 +8,7 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View.OnTouchListener
 import android.widget.FrameLayout
-import au.com.woolworths.village.sdk.app.databinding.SlideToPayBinding
+import au.com.wpay.sdk.paymentsimulator.databinding.SlideToPayBinding
 
 interface OnSwipedListener {
     fun onSwiped()
@@ -64,7 +65,8 @@ class SlideToPay: FrameLayout {
         setOnTouchListener(buttonTouchListener())
     }
 
-    private fun buttonTouchListener(): OnTouchListener? {
+    @SuppressLint("ClickableViewAccessibility")
+    private fun buttonTouchListener(): OnTouchListener {
         return OnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN ->
