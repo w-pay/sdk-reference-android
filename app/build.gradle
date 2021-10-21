@@ -22,8 +22,8 @@ android {
         applicationId "au.com.wpay.sdk.paymentsimulator"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 8
-        versionName "1.2.0"
+        versionCode 1
+        versionName "1.0.0"
 
         manifestPlaceholders = [
             qr_scheme: properties.getProperty('qr.scheme'),
