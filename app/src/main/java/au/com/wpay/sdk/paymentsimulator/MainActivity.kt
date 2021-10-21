@@ -19,12 +19,18 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import au.com.wpay.sdk.paymentsimulator.ui.theme.WPayPaymentSimulatorAppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
+            val navController = rememberNavController()
+
             WPayPaymentSimulatorAppTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(color = MaterialTheme.colors.background) {
@@ -32,6 +38,9 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxHeight()
                     ) {
                         Toolbar(dimensionResource(id = getActionBarSize()))
+                        NavHost(navController = navController, startDestination = "settings") {
+                            composable("settings") { WPaySettings() }
+                        }
                     }
                 }
             }

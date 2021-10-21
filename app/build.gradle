@@ -81,6 +81,7 @@ dependencies {
     implementation "androidx.coordinatorlayout:coordinatorlayout:1.1.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
+    implementation("androidx.navigation:navigation-compose:2.4.0-alpha10")
     implementation "com.google.android.material:material:1.4.0"
 
     implementation("au.com.woolworths.village.sdk:sdk:4.2.1")
