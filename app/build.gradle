@@ -10,7 +10,6 @@ repositories {
 
 android {
     compileSdkVersion rootProject.ext.targetSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
         applicationId "au.com.wpay.sdk.paymentsimulator"
