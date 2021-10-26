@@ -14,6 +14,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -27,19 +29,34 @@ class MainActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController()
 
-            WPayPaymentSimulatorAppTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(color = MaterialTheme.colors.background) {
-                    Scaffold(
-                        modifier = Modifier.fillMaxHeight()
-                    ) {
-                        Column {
-                            Toolbar()
-                            NavHost(navController = navController, startDestination = "settings") {
-                                composable("settings") { WPaySettings() }
-                            }
-                        }
-                    }
+            MainActivityContent {
+                Navigation(navController)
+            }
+        }
+    }
+}
+
+@ExperimentalMaterialApi
+@Preview
+@Composable
+private fun MainActivityContentPreview() {
+    MainActivityContent {}
+}
+
+@ExperimentalMaterialApi
+@Composable
+private fun MainActivityContent(
+    navigation: @Composable () -> Unit
+) {
+    WPayPaymentSimulatorAppTheme {
+        // A surface container using the 'background' color from the theme
+        Surface(color = MaterialTheme.colors.background) {
+            Scaffold(
+                modifier = Modifier.fillMaxHeight()
+            ) {
+                Column {
+                    Toolbar()
+                    navigation()
                 }
             }
         }
@@ -47,7 +64,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Toolbar() {
+private fun Toolbar() {
     Row(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
@@ -75,10 +92,18 @@ fun Toolbar() {
     }
 }
 
-@Preview(showBackground = true)
+@ExperimentalMaterialApi
 @Composable
-fun DefaultPreview() {
-    WPayPaymentSimulatorAppTheme {
-        Toolbar()
+private fun Navigation(navController: NavHostController) {
+    NavHost(navController = navController, startDestination = "settings") {
+        composable(route = Routes.Settings.route) {
+            WPaySettings {
+                navController.navigate(Routes.PaymentDetails.route)
+            }
+        }
+
+        composable(route = Routes.PaymentDetails.route) {
+            PaymentDetails()
+        }
     }
 }
