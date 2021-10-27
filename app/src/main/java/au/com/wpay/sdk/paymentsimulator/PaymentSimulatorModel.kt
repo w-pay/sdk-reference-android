@@ -10,4 +10,8 @@ interface PaymentSimulatorActions {
 
 class PaymentSimulatorModel : ViewModel() {
     val error: MutableLiveData<Exception> = MutableLiveData()
+
+    fun onError(error: Exception) {
+        this.error.postValue(error)
+    }
 }

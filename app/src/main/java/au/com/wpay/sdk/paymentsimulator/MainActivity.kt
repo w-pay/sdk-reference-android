@@ -146,7 +146,7 @@ private fun Navigation(
                     }
 
                     override fun onError(error: Exception) {
-                        viewModel.error.postValue(error)
+                        viewModel.onError(error)
                     }
                 }
             )
