@@ -35,7 +35,7 @@ import kotlin.math.roundToInt
 class PaymentConfirm : AppCompatActivity() {
     private val currencyFormat: NumberFormat = NumberFormat.getCurrencyInstance()
 
-    private lateinit var data: ViewModel
+    private lateinit var data: OldViewModel
     private lateinit var bindings: PaymentConfirmBinding
 
     private var animationDuration: Long = 0
@@ -97,7 +97,7 @@ class PaymentConfirm : AppCompatActivity() {
     }
 
     private fun createViewModel() {
-        data = ViewModelProvider(this).get(ViewModel::class.java)
+        data = ViewModelProvider(this).get(OldViewModel::class.java)
 
         data.authenticationDetails.observe(this, Observer {
             when (it) {
@@ -263,7 +263,7 @@ class PaymentConfirm : AppCompatActivity() {
     }
 }
 
-class ViewModel : androidx.lifecycle.ViewModel() {
+private class OldViewModel : androidx.lifecycle.ViewModel() {
     val authenticationDetails: MutableLiveData<ApiResult<HasAccessToken>> = MutableLiveData()
     val qrCodeId: MutableLiveData<String?> = MutableLiveData()
     val paymentRequest: MutableLiveData<ApiResult<CustomerPaymentRequest>> = MutableLiveData()
