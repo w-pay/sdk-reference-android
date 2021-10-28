@@ -1,11 +1,11 @@
 package au.com.wpay.sdk.paymentsimulator.settings
 
-import au.com.woolworths.village.sdk.VillageCustomerOptions
-import au.com.woolworths.village.sdk.VillageMerchantOptions
 import au.com.woolworths.village.sdk.model.FraudPayload
 import au.com.woolworths.village.sdk.model.FraudPayloadFormat
 import au.com.woolworths.village.sdk.model.NewPaymentRequest
 import au.com.wpay.sdk.paymentsimulator.PaymentSimulatorActions
+import au.com.wpay.sdk.paymentsimulator.SimulatorCustomerOptions
+import au.com.wpay.sdk.paymentsimulator.SimulatorMerchantOptions
 
 data class WPaySettingsProps(
     val merchant: WPayMerchantSettings,
@@ -37,8 +37,8 @@ data class InitialPaymentRequest(
 
 interface WPaySettingsActions : PaymentSimulatorActions {
     fun onCreatePaymentRequest(
-        merchant: VillageMerchantOptions,
-        customer: VillageCustomerOptions,
+        merchant: SimulatorMerchantOptions,
+        customer: SimulatorCustomerOptions,
         paymentRequest: NewPaymentRequest,
     )
 }

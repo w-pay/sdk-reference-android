@@ -11,11 +11,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import au.com.woolworths.village.sdk.VillageCustomerOptions
-import au.com.woolworths.village.sdk.VillageMerchantOptions
 import au.com.woolworths.village.sdk.Wallet
 import au.com.woolworths.village.sdk.model.FraudPayload
 import au.com.woolworths.village.sdk.model.NewPaymentRequest
+import au.com.wpay.sdk.paymentsimulator.SimulatorCustomerOptions
+import au.com.wpay.sdk.paymentsimulator.SimulatorMerchantOptions
 import au.com.wpay.sdk.paymentsimulator.model.SimulatorPaymentRequest
 import au.com.wpay.sdk.paymentsimulator.ui.components.ComboBox
 import au.com.wpay.sdk.paymentsimulator.ui.components.LayoutBox
@@ -239,7 +239,7 @@ fun WPaySettings(
                     onClick = {
                         try {
                             actions.onCreatePaymentRequest(
-                                merchant = VillageMerchantOptions(
+                                merchant = SimulatorMerchantOptions(
                                     baseUrl = data.env.value.baseUrl,
                                     apiKey = data.merchant.apiKey.value,
                                     merchantId = data.merchant.merchantId.value,
@@ -248,14 +248,15 @@ fun WPaySettings(
                                         else -> Wallet.MERCHANT
                                     }
                                 ),
-                                customer = VillageCustomerOptions(
+                                customer = SimulatorCustomerOptions(
                                     baseUrl = data.env.value.baseUrl,
                                     apiKey = data.customer.apiKey.value,
                                     walletId = data.customer.walletId.value,
                                     wallet = when(data.customer.useEveryDayPay.value) {
                                         true -> Wallet.EVERYDAY_PAY
                                         else -> Wallet.MERCHANT
-                                    }
+                                    },
+                                    customerId = data.customer.userId.value
                                 ),
                                 paymentRequest = SimulatorPaymentRequest(
                                     grossAmount = BigDecimal(data.paymentRequest.amount.value),
@@ -284,8 +285,8 @@ fun WPaySettings(
 private fun WPaySettingsPreview() {
     val actions = object : WPaySettingsActions {
         override fun onCreatePaymentRequest(
-            merchant: VillageMerchantOptions,
-            customer: VillageCustomerOptions,
+            merchant: SimulatorMerchantOptions,
+            customer: SimulatorCustomerOptions,
             paymentRequest: NewPaymentRequest
         ) {
 
