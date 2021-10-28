@@ -26,8 +26,8 @@ enum class WPayEnvironment(
     val text: String,
     val baseUrl: String
 ) {
-    DEV1("Dev 1", "https://dev.mobile-api.woolworths.com.au/wow/v1/pay"),
-    UAT("UAT", "https://test.mobile-api.woolworths.com.au/wow/v1/pay")
+    DEV1("Dev 1", "https://dev.mobile-api.woolworths.com.au"),
+    UAT("UAT", "https://test.mobile-api.woolworths.com.au")
 }
 
 @ExperimentalMaterialApi

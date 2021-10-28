@@ -356,9 +356,9 @@ private class OldViewModel : androidx.lifecycle.ViewModel() {
             apiKey = "haTdoUWVhnXm5n75u6d0VG67vCCvKjQC"
         )
 
-        val authenticator = createCustomerLoginAuthenticator(options, hostname)
+        /*val authenticator = createCustomerLoginAuthenticator(options, hostname)
 
-        village = createCustomerSDK(options, authenticator)
+        village = createCustomerSDK(options, authenticator)*/
     }
 
     private fun contextRootFrom(qrCodeContents: Uri): String =

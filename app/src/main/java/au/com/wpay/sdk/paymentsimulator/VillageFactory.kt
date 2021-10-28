@@ -1,31 +1,35 @@
 package au.com.wpay.sdk.paymentsimulator
 
 import au.com.woolworths.village.sdk.*
-import au.com.woolworths.village.sdk.auth.ApiAuthenticator
-import au.com.woolworths.village.sdk.auth.HasAccessToken
 import au.com.woolworths.village.sdk.openapi.OpenApiCustomerApiRepositoryFactory
+import au.com.woolworths.village.sdk.openapi.OpenApiMerchantApiRepositoryFactory
 
 fun createCustomerSDK(
     options: VillageCustomerOptions,
-    authenticator: ApiAuthenticator<HasAccessToken>
+    token: String
 ): VillageCustomerApiRepository =
     createCustomerSDK(
         options,
         // see the docs on how we can use different token types.
-        ApiTokenType.ApiAuthenticatorToken(authenticator),
+        ApiTokenType.StringToken(token),
         OpenApiCustomerApiRepositoryFactory
     )
 
-fun createCustomerLoginAuthenticator(
-    options: VillageOptions,
-    origin: String
-): CustomerLoginApiAuthenticator {
-    val authenticator = CustomerLoginApiAuthenticator(
-        requestHeaders = RequestHeaderChain(listOf(ApiKeyRequestHeader(options))),
-        path = "/wow/v1/idm/servers/token"
+fun createMerchantSDK(
+    options: VillageMerchantOptions,
+): VillageMerchantApiRepository =
+    createMerchantSDK(
+        options,
+        // see the docs on how we can use different token types.
+        ApiTokenType.NoToken(),
+        OpenApiMerchantApiRepositoryFactory
     )
 
-    authenticator.setOrigin(origin)
-
-    return authenticator
-}
+fun createCustomerLoginAuthenticator(
+    options: SimulatorCustomerOptions
+): CustomerLoginApiAuthenticator =
+    CustomerLoginApiAuthenticator(
+        requestHeaders = RequestHeaderChain(listOf(ApiKeyRequestHeader(options))),
+        url = "${options.baseUrl}/wow/v1/idm/servers/token",
+        customerId = options.customerId
+    )

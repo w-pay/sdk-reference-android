@@ -21,11 +21,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import au.com.woolworths.village.sdk.VillageCustomerOptions
-import au.com.woolworths.village.sdk.VillageMerchantOptions
-import au.com.woolworths.village.sdk.model.NewPaymentRequest
 import au.com.wpay.sdk.paymentsimulator.settings.WPaySettings
-import au.com.wpay.sdk.paymentsimulator.settings.WPaySettingsActions
 import au.com.wpay.sdk.paymentsimulator.settings.defaultSettingsProps
 import au.com.wpay.sdk.paymentsimulator.ui.theme.WPayPaymentSimulatorAppTheme
 import kotlinx.coroutines.launch
@@ -136,19 +132,7 @@ private fun Navigation(
         composable(route = Routes.Settings.route) {
             WPaySettings(
                 props = defaultSettingsProps(),
-                actions = object : WPaySettingsActions {
-                    override fun onCreatePaymentRequest(
-                        merchant: VillageMerchantOptions,
-                        customer: VillageCustomerOptions,
-                        paymentRequest: NewPaymentRequest
-                    ) {
-                        navController.navigate(Routes.PaymentDetails.route)
-                    }
-
-                    override fun onError(error: Exception) {
-                        viewModel.onError(error)
-                    }
-                }
+                actions = viewModel
             )
         }
 

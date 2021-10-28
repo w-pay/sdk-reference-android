@@ -16,26 +16,20 @@ import java.lang.IllegalStateException
 
 class CustomerLoginApiAuthenticator(
     private val requestHeaders: RequestHeadersFactory,
-    private var path: String
+    private var url: String,
+    private var customerId: String
 ): ApiAuthenticator<HasAccessToken> {
-    /*
-     * We allow the origin to be changeable so that the same authenticator instance can
-     * be used against different hosts if required.
-     */
-    private var origin: String? = null
-
     override fun authenticate(): ApiResult<IdmTokenDetails> {
-        val origin = this.origin ?: throw IllegalStateException("Origin server must be set")
         val gson: Gson = GsonBuilder().create()
         val credentials: String = gson.toJson(mapOf(
-            "shopperId" to "1100000000093126352",
-            "username" to "1100000000093126352"
+            "shopperId" to customerId,
+            "username" to customerId
         ))
 
         val builder: OkHttpClient.Builder = OkHttpClient.Builder()
         val client = builder.build()
         val req: Request = Request.Builder()
-            .url("${origin}${path}")
+            .url(url)
             .apply { requestHeaders.createHeaders().forEach { (name, value) -> addHeader(name, value) } }
             .post(credentials.toRequestBody("application/json; charset=utf-8".toMediaType()))
             .build()
@@ -52,9 +46,5 @@ class CustomerLoginApiAuthenticator(
 
             return ApiResult.Error(HttpErrorException(response.code, response.headers.toMultimap(), body))
         }
-    }
-
-    fun setOrigin(origin: String) {
-       this.origin = origin
     }
 }
