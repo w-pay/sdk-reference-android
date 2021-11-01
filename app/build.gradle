@@ -80,13 +80,15 @@ dependencies {
     implementation "androidx.coordinatorlayout:coordinatorlayout:1.1.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
-    implementation("androidx.navigation:navigation-compose:2.4.0-alpha10")
+    implementation "androidx.navigation:navigation-compose:2.4.0-alpha10"
     implementation "com.google.android.material:material:1.4.0"
 
     implementation "com.github.w-pay:sdk-wpay-android:v4.4.6"
     implementation "com.github.w-pay:sdk-wpay-openapi-android:v4.4.2"
     implementation "com.squareup.okhttp3:okhttp:4.7.2"
     implementation "com.google.code.gson:gson:2.8.6"
+
+    implementation "com.github.w-pay:sdk-wpay-android-frames:v0.1.1"
 
     testImplementation "junit:junit:4.13.2"
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"

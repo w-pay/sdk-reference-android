@@ -17,11 +17,12 @@ fun createCustomerSDK(
 
 fun createMerchantSDK(
     options: VillageMerchantOptions,
+    token: String
 ): VillageMerchantApiRepository =
     createMerchantSDK(
         options,
         // see the docs on how we can use different token types.
-        ApiTokenType.NoToken(),
+        ApiTokenType.StringToken(token),
         OpenApiMerchantApiRepositoryFactory
     )
 

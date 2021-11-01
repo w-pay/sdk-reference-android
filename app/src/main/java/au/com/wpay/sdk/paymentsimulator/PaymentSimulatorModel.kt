@@ -4,7 +4,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import au.com.woolworths.village.sdk.*
+import au.com.woolworths.village.sdk.model.MerchantPaymentDetails
 import au.com.woolworths.village.sdk.model.NewPaymentRequest
+import au.com.wpay.frames.types.FramesConfig
+import au.com.wpay.frames.types.LogLevel
 import au.com.wpay.sdk.paymentsimulator.settings.WPaySettingsActions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -33,8 +36,10 @@ class SimulatorMerchantOptions(
 class PaymentSimulatorModel : ViewModel(), WPaySettingsActions {
     lateinit var customerSDK: VillageCustomerApiRepository
     lateinit var merchantSDK: VillageMerchantApiRepository
+    lateinit var framesConfig: FramesConfig
 
     val error: MutableLiveData<Exception> = MutableLiveData()
+    val paymentRequest: MutableLiveData<MerchantPaymentDetails> = MutableLiveData()
 
     override fun onError(error: Exception) {
         this.error.postValue(error)
@@ -49,34 +54,74 @@ class PaymentSimulatorModel : ViewModel(), WPaySettingsActions {
             withContext(Dispatchers.IO) {
                 val authToken = authenticateCustomer(customer)
 
-                authToken?.let {
-                    val options = VillageCustomerOptions(
-                        apiKey = customer.apiKey,
-                        baseUrl = sdkBaseUrl(customer.baseUrl),
-                        wallet = customer.wallet,
-                        walletId = customer.walletId
-                    )
+                createCustomerSDK(customer, authToken)
+                createMerchantSDK(merchant, customer, authToken)
+                createFramesConfig(customer, authToken)
 
-                    customerSDK = createCustomerSDK(
-                        options = options,
-                        token = it
-                    )
-                }
-
-                authToken?.let {
-                    val options = VillageMerchantOptions(
-                        apiKey = customer.apiKey,
-                        baseUrl = sdkBaseUrl(merchant.baseUrl),
-                        wallet = customer.wallet,
-                    )
-
-                    merchantSDK = createMerchantSDK(
-                        options = options
-                    )
-                }
+                createPaymentRequest(paymentRequest)
             }
         }
     }
+
+    private fun createCustomerSDK(
+        customer: SimulatorCustomerOptions,
+        authToken: String?
+    ) {
+        authToken?.let {
+            val options = VillageCustomerOptions(
+                apiKey = customer.apiKey,
+                baseUrl = sdkBaseUrl(customer.baseUrl),
+                wallet = customer.wallet,
+                walletId = customer.walletId
+            )
+
+            customerSDK = createCustomerSDK(
+                options = options,
+                token = it
+            )
+        }
+    }
+
+    private fun createMerchantSDK(
+        merchant: SimulatorMerchantOptions,
+        customer: SimulatorCustomerOptions,
+        authToken: String?
+    ) {
+        authToken?.let {
+            val options = VillageMerchantOptions(
+                apiKey = customer.apiKey,
+                baseUrl = sdkBaseUrl(merchant.baseUrl),
+                wallet = customer.wallet,
+            )
+
+            merchantSDK = createMerchantSDK(
+                options = options,
+                token = it
+            )
+        }
+    }
+
+    private fun createFramesConfig(customer: SimulatorCustomerOptions, authToken: String?) =
+        authToken?.let {
+            framesConfig = FramesConfig(
+                apiKey = customer.apiKey,
+                authToken = "Bearer $authToken",
+                apiBase = "${sdkBaseUrl(customer.baseUrl)}/instore",
+                logLevel = LogLevel.DEBUG
+            )
+        }
+
+    private fun createPaymentRequest(paymentRequest: NewPaymentRequest) =
+        when (val result = merchantSDK.payments.createPaymentRequest(paymentRequest)) {
+            is ApiResult.Success -> getPaymentRequest(result.value.paymentRequestId)
+            is ApiResult.Error -> onError(result.e)
+        }
+
+    private fun getPaymentRequest(paymentRequestId: String) =
+        when (val result = merchantSDK.payments.getPaymentRequestDetailsBy(paymentRequestId)) {
+            is ApiResult.Success -> paymentRequest.postValue(result.value)
+            is ApiResult.Error -> onError(result.e)
+        }
 
     private fun authenticateCustomer(customer: SimulatorCustomerOptions): String? {
         val authenticator = createCustomerLoginAuthenticator(customer)

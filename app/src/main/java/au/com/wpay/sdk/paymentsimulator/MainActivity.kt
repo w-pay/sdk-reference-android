@@ -43,7 +43,17 @@ class MainActivity : ComponentActivity() {
             }
 
             observeErrors(model, scaffoldState)
+            observePaymentRequest(model, navController)
         }
+    }
+
+    private fun observePaymentRequest(
+        model: PaymentSimulatorModel,
+        navController: NavHostController
+    ) {
+        model.paymentRequest.observe(this, {
+            navController.navigate(Routes.PaymentDetails.route)
+        })
     }
 
     private fun observeErrors(
