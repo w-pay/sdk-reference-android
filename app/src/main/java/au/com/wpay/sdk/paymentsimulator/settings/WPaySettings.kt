@@ -2,10 +2,7 @@ package au.com.wpay.sdk.paymentsimulator.settings
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -19,6 +16,7 @@ import au.com.wpay.sdk.paymentsimulator.SimulatorMerchantOptions
 import au.com.wpay.sdk.paymentsimulator.model.SimulatorPaymentRequest
 import au.com.wpay.sdk.paymentsimulator.ui.components.ComboBox
 import au.com.wpay.sdk.paymentsimulator.ui.components.LayoutBox
+import au.com.wpay.sdk.paymentsimulator.ui.components.PrimaryButton
 import au.com.wpay.sdk.paymentsimulator.ui.theme.Typography
 import java.math.BigDecimal
 
@@ -58,6 +56,8 @@ fun WPaySettings(
             fraudPayload = props.paymentRequest.fraudPayload
         )
     )
+
+    var createEnabled: Boolean by remember { mutableStateOf(true) }
 
     LayoutBox {
         Column {
@@ -235,9 +235,15 @@ fun WPaySettings(
                     .fillMaxWidth()
                     .padding(0.dp, 20.dp, 0.dp, 0.dp)
             ) {
-                Button(
+                PrimaryButton(
+                    modifier = Modifier.fillMaxWidth(0.7f),
+                    enabled = createEnabled,
+                    waiting = !createEnabled,
+                    text = "Create new payment request",
                     onClick = {
                         try {
+                            createEnabled = false
+
                             actions.onCreatePaymentRequest(
                                 merchant = SimulatorMerchantOptions(
                                     baseUrl = data.env.value.baseUrl,
@@ -266,12 +272,12 @@ fun WPaySettings(
                             )
                         }
                         catch (e: Exception) {
+                            createEnabled = true
+
                             actions.onError(e)
                         }
                     }
-                ) {
-                    Text(text = "Create new payment request")
-                }
+                )
             }
         }
     }
