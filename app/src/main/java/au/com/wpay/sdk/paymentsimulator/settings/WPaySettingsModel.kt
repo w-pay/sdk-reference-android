@@ -6,6 +6,7 @@ import au.com.woolworths.village.sdk.model.NewPaymentRequest
 import au.com.wpay.sdk.paymentsimulator.PaymentSimulatorActions
 import au.com.wpay.sdk.paymentsimulator.SimulatorCustomerOptions
 import au.com.wpay.sdk.paymentsimulator.SimulatorMerchantOptions
+import kotlinx.coroutines.Deferred
 
 data class WPaySettingsProps(
     val merchant: WPayMerchantSettings,
@@ -35,12 +36,13 @@ data class InitialPaymentRequest(
     val fraudPayload: FraudPayload
 )
 
+@Suppress("DeferredIsResult")
 interface WPaySettingsActions : PaymentSimulatorActions {
     fun onCreatePaymentRequest(
         merchant: SimulatorMerchantOptions,
         customer: SimulatorCustomerOptions,
         paymentRequest: NewPaymentRequest,
-    )
+    ): Deferred<Unit>
 }
 
 fun defaultSettingsProps() =

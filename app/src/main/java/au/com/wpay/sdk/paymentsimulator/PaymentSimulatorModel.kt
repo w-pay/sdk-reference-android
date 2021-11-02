@@ -72,8 +72,8 @@ class PaymentSimulatorModel : ViewModel(), PaymentDetailsActions, WPaySettingsAc
         merchant: SimulatorMerchantOptions,
         customer: SimulatorCustomerOptions,
         paymentRequest: NewPaymentRequest
-    ) {
-        viewModelScope.launch {
+    ): Deferred<Unit> {
+        return viewModelScope.async {
             withContext(Dispatchers.IO) {
                 val authToken = authenticateCustomer(customer)
 

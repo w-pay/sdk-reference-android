@@ -3,6 +3,7 @@ package au.com.wpay.sdk.paymentsimulator.settings
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -18,6 +19,9 @@ import au.com.wpay.sdk.paymentsimulator.ui.components.ComboBox
 import au.com.wpay.sdk.paymentsimulator.ui.components.LayoutBox
 import au.com.wpay.sdk.paymentsimulator.ui.components.PrimaryButton
 import au.com.wpay.sdk.paymentsimulator.ui.theme.Typography
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import java.math.BigDecimal
 
 enum class WPayEnvironment(
@@ -57,7 +61,8 @@ fun WPaySettings(
         )
     )
 
-    var createEnabled: Boolean by remember { mutableStateOf(true) }
+    var createEnabled: Boolean by rememberSaveable { mutableStateOf(true) }
+    val scope = rememberCoroutineScope()
 
     LayoutBox {
         Column {
@@ -241,40 +246,10 @@ fun WPaySettings(
                     waiting = !createEnabled,
                     text = "Create new payment request",
                     onClick = {
-                        try {
+                        scope.launch {
                             createEnabled = false
-
-                            actions.onCreatePaymentRequest(
-                                merchant = SimulatorMerchantOptions(
-                                    baseUrl = data.env.value.baseUrl,
-                                    apiKey = data.merchant.apiKey.value,
-                                    merchantId = data.merchant.merchantId.value,
-                                    wallet = when(data.customer.useEveryDayPay.value) {
-                                        true -> Wallet.EVERYDAY_PAY
-                                        else -> Wallet.MERCHANT
-                                    }
-                                ),
-                                customer = SimulatorCustomerOptions(
-                                    baseUrl = data.env.value.baseUrl,
-                                    apiKey = data.customer.apiKey.value,
-                                    walletId = data.customer.walletId.value,
-                                    wallet = when(data.customer.useEveryDayPay.value) {
-                                        true -> Wallet.EVERYDAY_PAY
-                                        else -> Wallet.MERCHANT
-                                    },
-                                    customerId = data.customer.userId.value
-                                ),
-                                paymentRequest = SimulatorPaymentRequest(
-                                    grossAmount = BigDecimal(data.paymentRequest.amount.value),
-                                    maxUses = Integer.parseInt(data.paymentRequest.maxUses.value),
-                                    require3DSPA = data.merchant.require3DSPA.value
-                                )
-                            )
-                        }
-                        catch (e: Exception) {
+                            createPaymentRequest(data, actions)
                             createEnabled = true
-
-                            actions.onError(e)
                         }
                     }
                 )
@@ -289,13 +264,16 @@ fun WPaySettings(
 )
 @Composable
 private fun WPaySettingsPreview() {
+    val scope = rememberCoroutineScope()
+
+    @Suppress("DeferredIsResult")
     val actions = object : WPaySettingsActions {
         override fun onCreatePaymentRequest(
             merchant: SimulatorMerchantOptions,
             customer: SimulatorCustomerOptions,
             paymentRequest: NewPaymentRequest
-        ) {
-
+        ): Deferred<Unit> {
+            return scope.async {}
         }
 
         override fun onError(error: Exception) {
@@ -340,6 +318,43 @@ private fun Setting(
         )
 
         input()
+    }
+}
+
+private suspend fun createPaymentRequest(
+    data: SettingsData,
+    actions: WPaySettingsActions
+) {
+    try {
+        actions.onCreatePaymentRequest(
+            merchant = SimulatorMerchantOptions(
+                baseUrl = data.env.value.baseUrl,
+                apiKey = data.merchant.apiKey.value,
+                merchantId = data.merchant.merchantId.value,
+                wallet = when (data.customer.useEveryDayPay.value) {
+                    true -> Wallet.EVERYDAY_PAY
+                    else -> Wallet.MERCHANT
+                }
+            ),
+            customer = SimulatorCustomerOptions(
+                baseUrl = data.env.value.baseUrl,
+                apiKey = data.customer.apiKey.value,
+                walletId = data.customer.walletId.value,
+                wallet = when (data.customer.useEveryDayPay.value) {
+                    true -> Wallet.EVERYDAY_PAY
+                    else -> Wallet.MERCHANT
+                },
+                customerId = data.customer.userId.value
+            ),
+            paymentRequest = SimulatorPaymentRequest(
+                grossAmount = BigDecimal(data.paymentRequest.amount.value),
+                maxUses = Integer.parseInt(data.paymentRequest.maxUses.value),
+                require3DSPA = data.merchant.require3DSPA.value
+            )
+        ).await()
+    }
+    catch (e: Exception) {
+        actions.onError(e)
     }
 }
 
