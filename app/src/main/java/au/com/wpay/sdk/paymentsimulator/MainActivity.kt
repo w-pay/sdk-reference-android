@@ -21,6 +21,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import au.com.wpay.sdk.paymentsimulator.payment.PaymentDetails
+import au.com.wpay.sdk.paymentsimulator.payment.PaymentDetailsProps
 import au.com.wpay.sdk.paymentsimulator.settings.WPaySettings
 import au.com.wpay.sdk.paymentsimulator.settings.defaultSettingsProps
 import au.com.wpay.sdk.paymentsimulator.ui.theme.WPayPaymentSimulatorAppTheme
@@ -51,7 +53,7 @@ class MainActivity : ComponentActivity() {
         model: PaymentSimulatorModel,
         navController: NavHostController
     ) {
-        model.paymentRequest.observe(this, {
+        model.paymentInstruments.observe(this, {
             navController.navigate(Routes.PaymentDetails.route)
         })
     }
@@ -147,7 +149,13 @@ private fun Navigation(
         }
 
         composable(route = Routes.PaymentDetails.route) {
-            PaymentDetails()
+            PaymentDetails(
+                props = PaymentDetailsProps(
+                    cards = viewModel.paymentInstruments.value!!,
+                    framesConfig = viewModel.framesConfig
+                ),
+                actions = viewModel
+            )
         }
     }
 }
