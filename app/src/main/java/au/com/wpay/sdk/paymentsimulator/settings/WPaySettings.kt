@@ -12,8 +12,8 @@ import androidx.compose.ui.unit.dp
 import au.com.woolworths.village.sdk.Wallet
 import au.com.woolworths.village.sdk.model.FraudPayload
 import au.com.woolworths.village.sdk.model.NewPaymentRequest
-import au.com.wpay.sdk.paymentsimulator.SimulatorCustomerOptions
-import au.com.wpay.sdk.paymentsimulator.SimulatorMerchantOptions
+import au.com.wpay.sdk.paymentsimulator.model.SimulatorCustomerOptions
+import au.com.wpay.sdk.paymentsimulator.model.SimulatorMerchantOptions
 import au.com.wpay.sdk.paymentsimulator.model.SimulatorPaymentRequest
 import au.com.wpay.sdk.paymentsimulator.ui.components.ComboBox
 import au.com.wpay.sdk.paymentsimulator.ui.components.LayoutBox

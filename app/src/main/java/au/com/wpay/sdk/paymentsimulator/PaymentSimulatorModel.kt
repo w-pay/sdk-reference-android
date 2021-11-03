@@ -9,48 +9,15 @@ import au.com.woolworths.village.sdk.model.MerchantPaymentDetails
 import au.com.woolworths.village.sdk.model.NewPaymentRequest
 import au.com.wpay.frames.types.FramesConfig
 import au.com.wpay.frames.types.LogLevel
+import au.com.wpay.sdk.paymentsimulator.model.PaymentOptions
+import au.com.wpay.sdk.paymentsimulator.model.SimulatorCustomerOptions
+import au.com.wpay.sdk.paymentsimulator.model.SimulatorMerchantOptions
 import au.com.wpay.sdk.paymentsimulator.payment.PaymentDetailsActions
 import au.com.wpay.sdk.paymentsimulator.settings.WPaySettingsActions
 import kotlinx.coroutines.*
 
 interface PaymentSimulatorActions {
     fun onError(error: Exception)
-}
-
-class SimulatorCustomerOptions(
-    apiKey: String,
-    baseUrl: String,
-    wallet: Wallet? = null,
-    walletId: String? = null,
-
-    val customerId: String
-) : VillageCustomerOptions(apiKey, baseUrl, wallet, walletId)
-
-class SimulatorMerchantOptions(
-    apiKey: String,
-    baseUrl: String,
-    wallet: Wallet? = null,
-    merchantId: String? = null
-) : VillageMerchantOptions(apiKey, baseUrl, wallet, merchantId)
-
-sealed class PaymentOptions {
-    data class NewCard(val valid: Boolean) : PaymentOptions() {
-        override fun isValid(): Boolean {
-            return valid
-        }
-    }
-
-    data class ExistingCard(val card: CreditCard?) : PaymentOptions() {
-        override fun isValid(): Boolean {
-            return card != null
-        }
-    }
-
-    object NoOption : PaymentOptions() {
-        override fun isValid(): Boolean = false
-    }
-
-    abstract fun isValid(): Boolean
 }
 
 @Suppress("DeferredIsResult")

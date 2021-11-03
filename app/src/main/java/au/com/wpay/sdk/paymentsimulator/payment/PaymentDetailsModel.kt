@@ -5,7 +5,7 @@ import au.com.woolworths.village.sdk.model.CreditCardStepUp
 import au.com.woolworths.village.sdk.model.PaymentInstrument
 import au.com.wpay.frames.types.FramesConfig
 import au.com.wpay.frames.types.LogLevel
-import au.com.wpay.sdk.paymentsimulator.PaymentOptions
+import au.com.wpay.sdk.paymentsimulator.model.PaymentOptions
 import kotlinx.coroutines.Deferred
 import org.threeten.bp.OffsetDateTime
 import java.net.URL

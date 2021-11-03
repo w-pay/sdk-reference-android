@@ -14,7 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import au.com.woolworths.village.sdk.model.CreditCard
 import au.com.wpay.frames.types.FramesConfig
-import au.com.wpay.sdk.paymentsimulator.PaymentOptions
+import au.com.wpay.sdk.paymentsimulator.model.PaymentOptions
 import au.com.wpay.sdk.paymentsimulator.ui.components.LayoutBox
 import au.com.wpay.sdk.paymentsimulator.ui.components.PrimaryButton
 import au.com.wpay.sdk.paymentsimulator.ui.theme.Typography
@@ -138,6 +138,10 @@ private fun NewCardDetails(
                 valid = isValid
 
                 onPaymentOptionSelected(valid)
+            }
+
+            override fun onActionComplete(response: String) {
+                TODO("Not yet implemented")
             }
         }
     )

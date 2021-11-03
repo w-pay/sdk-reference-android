@@ -3,6 +3,7 @@ package au.com.wpay.sdk.paymentsimulator
 import au.com.woolworths.village.sdk.*
 import au.com.woolworths.village.sdk.openapi.OpenApiCustomerApiRepositoryFactory
 import au.com.woolworths.village.sdk.openapi.OpenApiMerchantApiRepositoryFactory
+import au.com.wpay.sdk.paymentsimulator.model.SimulatorCustomerOptions
 
 fun createCustomerSDK(
     options: VillageCustomerOptions,

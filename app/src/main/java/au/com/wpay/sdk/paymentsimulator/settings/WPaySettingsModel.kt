@@ -4,8 +4,8 @@ import au.com.woolworths.village.sdk.model.FraudPayload
 import au.com.woolworths.village.sdk.model.FraudPayloadFormat
 import au.com.woolworths.village.sdk.model.NewPaymentRequest
 import au.com.wpay.sdk.paymentsimulator.PaymentSimulatorActions
-import au.com.wpay.sdk.paymentsimulator.SimulatorCustomerOptions
-import au.com.wpay.sdk.paymentsimulator.SimulatorMerchantOptions
+import au.com.wpay.sdk.paymentsimulator.model.SimulatorCustomerOptions
+import au.com.wpay.sdk.paymentsimulator.model.SimulatorMerchantOptions
 import kotlinx.coroutines.Deferred
 
 data class WPaySettingsProps(
