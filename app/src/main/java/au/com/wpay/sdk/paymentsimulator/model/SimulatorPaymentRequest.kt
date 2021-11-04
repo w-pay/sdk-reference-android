@@ -1,9 +1,6 @@
 package au.com.wpay.sdk.paymentsimulator.model
 
-import au.com.woolworths.village.sdk.model.Basket
-import au.com.woolworths.village.sdk.model.MerchantPayload
-import au.com.woolworths.village.sdk.model.NewPaymentRequest
-import au.com.woolworths.village.sdk.model.PosPayload
+import au.com.woolworths.village.sdk.model.*
 import java.math.BigDecimal
 import java.util.*
 
@@ -11,7 +8,8 @@ data class SimulatorPaymentRequest(
     override val grossAmount: BigDecimal,
     override val maxUses: Int,
 
-    private val require3DSPA: Boolean
+    val require3DSPA: Boolean,
+    val fraudPayload: FraudPayload?
 ) : NewPaymentRequest {
     override val basket: Basket?
         get() = null

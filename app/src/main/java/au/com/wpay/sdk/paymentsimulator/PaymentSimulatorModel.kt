@@ -53,6 +53,8 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
     private var cardExpiryValid: Boolean = false
     private var cardCvvValid: Boolean = false
 
+    private var fraudPayload: FraudPayload? = null
+
     override fun onError(error: Exception) {
         this.error.postValue(error)
     }
@@ -60,7 +62,7 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
     override fun onCreatePaymentRequest(
         merchant: SimulatorMerchantOptions,
         customer: SimulatorCustomerOptions,
-        paymentRequest: NewPaymentRequest
+        paymentRequest: SimulatorPaymentRequest
     ): Deferred<Unit> {
         return viewModelScope.async {
             withContext(Dispatchers.IO) {
@@ -72,6 +74,8 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
 
                 createPaymentRequest(paymentRequest)
                 listPaymentInstruments()
+
+                fraudPayload = paymentRequest.fraudPayload
             }
         }
     }

@@ -2,10 +2,10 @@ package au.com.wpay.sdk.paymentsimulator.settings
 
 import au.com.woolworths.village.sdk.model.FraudPayload
 import au.com.woolworths.village.sdk.model.FraudPayloadFormat
-import au.com.woolworths.village.sdk.model.NewPaymentRequest
 import au.com.wpay.sdk.paymentsimulator.PaymentSimulatorActions
 import au.com.wpay.sdk.paymentsimulator.model.SimulatorCustomerOptions
 import au.com.wpay.sdk.paymentsimulator.model.SimulatorMerchantOptions
+import au.com.wpay.sdk.paymentsimulator.model.SimulatorPaymentRequest
 import kotlinx.coroutines.Deferred
 
 data class WPaySettingsProps(
@@ -41,7 +41,7 @@ interface WPaySettingsActions : PaymentSimulatorActions {
     fun onCreatePaymentRequest(
         merchant: SimulatorMerchantOptions,
         customer: SimulatorCustomerOptions,
-        paymentRequest: NewPaymentRequest,
+        paymentRequest: SimulatorPaymentRequest,
     ): Deferred<Unit>
 }
 

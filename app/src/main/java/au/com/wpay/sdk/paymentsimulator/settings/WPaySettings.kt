@@ -271,7 +271,7 @@ private fun WPaySettingsPreview() {
         override fun onCreatePaymentRequest(
             merchant: SimulatorMerchantOptions,
             customer: SimulatorCustomerOptions,
-            paymentRequest: NewPaymentRequest
+            paymentRequest: SimulatorPaymentRequest
         ): Deferred<Unit> {
             return scope.async {}
         }
@@ -349,7 +349,11 @@ private suspend fun createPaymentRequest(
             paymentRequest = SimulatorPaymentRequest(
                 grossAmount = BigDecimal(data.paymentRequest.amount.value),
                 maxUses = Integer.parseInt(data.paymentRequest.maxUses.value),
-                require3DSPA = data.merchant.require3DSPA.value
+                require3DSPA = data.merchant.require3DSPA.value,
+                fraudPayload = when(data.paymentRequest.fraud.value) {
+                    true -> data.paymentRequest.fraudPayload
+                    else -> null
+                }
             )
         ).await()
     }
