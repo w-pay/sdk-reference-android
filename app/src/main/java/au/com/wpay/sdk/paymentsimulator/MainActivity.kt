@@ -8,8 +8,9 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -23,11 +24,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import au.com.wpay.sdk.paymentsimulator.model.PaymentOptions
+import au.com.wpay.sdk.paymentsimulator.model.PaymentOutcomes
 import au.com.wpay.sdk.paymentsimulator.payment.PaymentDetails
 import au.com.wpay.sdk.paymentsimulator.payment.PaymentDetailsFramesConfig
 import au.com.wpay.sdk.paymentsimulator.payment.PaymentDetailsProps
 import au.com.wpay.sdk.paymentsimulator.settings.WPaySettings
 import au.com.wpay.sdk.paymentsimulator.settings.defaultSettingsProps
+import au.com.wpay.sdk.paymentsimulator.ui.components.PaymentResultDialog
 import au.com.wpay.sdk.paymentsimulator.ui.theme.WPayPaymentSimulatorAppTheme
 import kotlinx.coroutines.launch
 
@@ -40,15 +43,22 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
             val scaffoldState = rememberScaffoldState()
             val model: PaymentSimulatorModel by viewModels()
+            val showDialog =  rememberSaveable { mutableStateOf(false) }
 
             MainActivityContent(
                 scaffoldState = scaffoldState
             ) {
                 Navigation(model, navController)
+                PaymentResultDialog(
+                    result = model.paymentOutcome.observeAsState(PaymentOutcomes.NoOutcome),
+                    show = showDialog.value,
+                    dismiss = { showDialog.value = false }
+                )
             }
 
             observeErrors(model, scaffoldState)
             observePaymentRequest(model, navController)
+            observePaymentOutcome(model, showDialog)
         }
     }
 
@@ -76,6 +86,20 @@ class MainActivity : ComponentActivity() {
                     actionLabel = "OK",
                     duration = SnackbarDuration.Indefinite
                 )
+            }
+        })
+    }
+
+    private fun observePaymentOutcome(
+        model: PaymentSimulatorModel,
+        showDialog: MutableState<Boolean>
+    ) {
+        model.paymentOutcome.observe(this, { outcome ->
+            when (outcome) {
+                is PaymentOutcomes.NoOutcome -> {}
+                else -> {
+                    showDialog.value = true
+                }
             }
         })
     }
