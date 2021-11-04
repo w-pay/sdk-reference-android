@@ -5,20 +5,21 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import au.com.woolworths.village.sdk.*
-import au.com.woolworths.village.sdk.model.CreditCard
-import au.com.woolworths.village.sdk.model.MerchantPaymentDetails
-import au.com.woolworths.village.sdk.model.NewPaymentRequest
+import au.com.woolworths.village.sdk.model.*
 import au.com.wpay.frames.FramesError
 import au.com.wpay.frames.FramesView
 import au.com.wpay.frames.JavascriptCommand
 import au.com.wpay.frames.types.FramesConfig
 import au.com.wpay.frames.types.LogLevel
-import au.com.wpay.sdk.paymentsimulator.model.PaymentOptions
-import au.com.wpay.sdk.paymentsimulator.model.SimulatorCustomerOptions
-import au.com.wpay.sdk.paymentsimulator.model.SimulatorMerchantOptions
+import au.com.wpay.sdk.paymentsimulator.model.*
 import au.com.wpay.sdk.paymentsimulator.payment.*
 import au.com.wpay.sdk.paymentsimulator.settings.WPaySettingsActions
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.withContext
+import java.lang.IllegalArgumentException
+import java.lang.IllegalStateException
 
 interface PaymentSimulatorActions {
     fun onError(error: Exception)
@@ -34,6 +35,7 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
     val paymentRequest: MutableLiveData<MerchantPaymentDetails> = MutableLiveData()
     val paymentInstruments: MutableLiveData<List<CreditCard>> = MutableLiveData()
     val paymentOption: MutableLiveData<PaymentOptions> = MutableLiveData(PaymentOptions.NoOption)
+    val paymentOutcome: MutableLiveData<PaymentOutcomes> = MutableLiveData(PaymentOutcomes.NoOutcome)
 
     /*
      * The command that needs to be executed in the Frames SDK
@@ -54,6 +56,7 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
     private var cardCvvValid: Boolean = false
 
     private var fraudPayload: FraudPayload? = null
+    private var challengeResponses: List<ChallengeResponse> = mutableListOf()
 
     override fun onError(error: Exception) {
         this.error.postValue(error)
@@ -92,7 +95,17 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
 
     override fun makePayment(paymentOption: PaymentOptions): Deferred<Unit> {
         return viewModelScope.async {
-            this@PaymentSimulatorModel.paymentOption.postValue(paymentOption)
+            withContext(Dispatchers.IO) {
+                when (paymentOption) {
+                    is PaymentOptions.NewCard -> completeCapturingCard()
+
+                    is PaymentOptions.ExistingCard ->
+                        paymentOption.card?.let { payWithCard(it) }
+                            ?: run { throw IllegalArgumentException("Missing card") }
+
+                    else -> { throw IllegalStateException("Can't pay with nothing") }
+                }
+            }
         }
     }
 
@@ -144,6 +157,46 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
 
         if (newCardValid()) {
             framesMessage.postValue("")
+        }
+    }
+
+    private fun completeCapturingCard() {
+
+    }
+
+    private fun payWithCard(card: CreditCard) {
+        for (retryCount in 1..3) {
+            if (paymentOutcome.value is PaymentOutcomes.NoOutcome) {
+                val result = customerSDK.paymentRequests.makePayment(
+                    paymentRequestId = paymentRequest.value!!.paymentRequestId,
+                    primaryInstrument = card.paymentInstrumentId,
+                    secondaryInstruments = null,
+                    clientReference = null,
+                    preferences = null,
+                    challengeResponses = challengeResponses,
+                    fraudPayload = fraudPayload,
+                    transactionType = null,
+                    allowPartialSuccess = null
+                )
+
+                when(result) {
+                    is ApiResult.Success -> {
+                        // TODO: Check for 3DS response
+
+                        paymentOutcome.postValue(PaymentOutcomes.Success)
+
+                        break
+                    }
+
+                    is ApiResult.Error -> {
+                        paymentOutcome.postValue(PaymentOutcomes.Failure(result.e.message))
+
+                        Log.e("PaymentSimulator", "Payment error", result.e)
+
+                        break
+                    }
+                }
+            }
         }
     }
 
