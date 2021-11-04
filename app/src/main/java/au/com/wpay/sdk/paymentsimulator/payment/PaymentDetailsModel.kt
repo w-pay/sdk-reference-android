@@ -1,8 +1,13 @@
 package au.com.wpay.sdk.paymentsimulator.payment
 
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import au.com.woolworths.village.sdk.model.CreditCard
 import au.com.woolworths.village.sdk.model.CreditCardStepUp
 import au.com.woolworths.village.sdk.model.PaymentInstrument
+import au.com.wpay.frames.FramesError
+import au.com.wpay.frames.FramesView
+import au.com.wpay.frames.JavascriptCommand
 import au.com.wpay.frames.types.FramesConfig
 import au.com.wpay.frames.types.LogLevel
 import au.com.wpay.sdk.paymentsimulator.model.PaymentOptions
@@ -10,15 +15,43 @@ import kotlinx.coroutines.Deferred
 import org.threeten.bp.OffsetDateTime
 import java.net.URL
 
+data class PaymentDetailsFramesConfig(
+    val config: FramesConfig,
+    val callback: FramesView.Callback,
+    val command: State<JavascriptCommand?>,
+    val message: State<String>
+)
+
 data class PaymentDetailsProps(
-    val cards: List<CreditCard>,
-    val framesConfig: FramesConfig
+    val framesConfig: PaymentDetailsFramesConfig,
+    val cards: State<List<CreditCard>?>,
+    val selectedPaymentOption: State<PaymentOptions>
 )
 
 @Suppress("DeferredIsResult")
 interface PaymentDetailsActions {
+    fun selectNewCardPaymentOption()
+
+    fun selectExistingCardPaymentOption(card: CreditCard)
+
     fun makePayment(paymentOption: PaymentOptions): Deferred<Unit>
 }
+
+fun fakeCreditCards(): List<CreditCard> =
+    listOf(fakeCreditCard, fakeCreditCard, fakeCreditCard)
+
+fun fakeFramesConfig(): PaymentDetailsFramesConfig =
+    PaymentDetailsFramesConfig(
+        config = FramesConfig(
+            apiBase = "http://localhost",
+            apiKey = "abc123",
+            authToken = "Bearer abc123",
+            logLevel = LogLevel.DEBUG
+        ),
+        callback = fakeCallback,
+        command = mutableStateOf(null),
+        message = mutableStateOf("")
+    )
 
 val fakeCreditCard = object : CreditCard {
     override val allowed: Boolean
@@ -83,13 +116,32 @@ val fakeCreditCard = object : CreditCard {
         get() = URL("http://foobar.com")
 }
 
-fun fakeCreditCards(): List<CreditCard> =
-    listOf(fakeCreditCard, fakeCreditCard, fakeCreditCard)
+var fakeCallback = object : FramesView.Callback {
+    override fun onComplete(response: String) {
 
-fun fakeFramesConfig(): FramesConfig =
-    FramesConfig(
-        apiBase = "http://localhost",
-        apiKey = "abc123",
-        authToken = "Bearer abc123",
-        logLevel = LogLevel.DEBUG
-    )
+    }
+
+    override fun onError(error: FramesError) {
+
+    }
+
+    override fun onFocusChange(domId: String, isFocussed: Boolean) {
+
+    }
+
+    override fun onPageLoaded() {
+
+    }
+
+    override fun onProgressChanged(progress: Int) {
+
+    }
+
+    override fun onRendered() {
+
+    }
+
+    override fun onValidationChange(domId: String, isValid: Boolean) {
+
+    }
+}

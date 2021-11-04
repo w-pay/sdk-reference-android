@@ -3,17 +3,20 @@ package au.com.wpay.sdk.paymentsimulator.payment
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.material.*
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.RadioButton
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import au.com.woolworths.village.sdk.model.CreditCard
-import au.com.wpay.frames.types.FramesConfig
 import au.com.wpay.sdk.paymentsimulator.model.PaymentOptions
 import au.com.wpay.sdk.paymentsimulator.ui.components.LayoutBox
 import au.com.wpay.sdk.paymentsimulator.ui.components.PrimaryButton
@@ -42,10 +45,19 @@ private fun PaymentDetailsPreview() {
 
     PaymentDetails(
         props = PaymentDetailsProps(
-            cards = fakeCreditCards(),
-            framesConfig = fakeFramesConfig()
+            framesConfig = fakeFramesConfig(),
+            cards = remember { mutableStateOf(fakeCreditCards()) },
+            selectedPaymentOption = remember { mutableStateOf(PaymentOptions.NoOption) }
         ),
         actions = object : PaymentDetailsActions {
+            override fun selectNewCardPaymentOption() {
+
+            }
+
+            override fun selectExistingCardPaymentOption(card: CreditCard) {
+
+            }
+
             @Suppress("DeferredIsResult")
             override fun makePayment(paymentOption: PaymentOptions): Deferred<Unit> {
                 return scope.async {}
@@ -71,25 +83,22 @@ private fun PaymentChoices(
     props: PaymentDetailsProps,
     actions: PaymentDetailsActions
 ) {
-    val (selectedPaymentOption, onPaymentOptionSelected)
-            = remember { mutableStateOf<PaymentOptions>(PaymentOptions.NoOption) }
-
-    var makingPayment by remember { mutableStateOf(false) }
+    var makingPayment by rememberSaveable { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
     Column(Modifier.selectableGroup()) {
         NewCardDetails(
-            config = props.framesConfig,
-            selectedPaymentOption = selectedPaymentOption,
-            onPaymentOptionSelected = { isValid ->
-                onPaymentOptionSelected(PaymentOptions.NewCard(isValid))
+            props = props.framesConfig,
+            selectedPaymentOption = props.selectedPaymentOption,
+            onPaymentOptionSelected = {
+                actions.selectNewCardPaymentOption()
             }
         )
 
         ExistingCardDetails(
-            selectedPaymentOption = selectedPaymentOption,
+            selectedPaymentOption = props.selectedPaymentOption,
             onPaymentOptionSelected = { card ->
-                onPaymentOptionSelected(PaymentOptions.ExistingCard(card))
+                actions.selectExistingCardPaymentOption(card)
             },
             cards = props.cards
         )
@@ -103,13 +112,13 @@ private fun PaymentChoices(
     ) {
         PrimaryButton(
             modifier = Modifier.fillMaxWidth(0.6f),
-            enabled = selectedPaymentOption.isValid() && !makingPayment,
+            enabled = props.selectedPaymentOption.value.isValid() && !makingPayment,
             waiting = makingPayment,
             text = "Pay Now",
             onClick = {
                 scope.launch {
                     makingPayment = true
-                    actions.makePayment(selectedPaymentOption).await()
+                    actions.makePayment(props.selectedPaymentOption.value).await()
                     makingPayment = false
                 }
             }
@@ -119,45 +128,37 @@ private fun PaymentChoices(
 
 @Composable
 private fun NewCardDetails(
-    config: FramesConfig,
-    selectedPaymentOption: PaymentOptions?,
-    onPaymentOptionSelected: (Boolean) -> Unit
+    props: PaymentDetailsFramesConfig,
+    selectedPaymentOption: State<PaymentOptions>,
+    onPaymentOptionSelected: () -> Unit
 ) {
-    var valid: Boolean by remember { mutableStateOf(false) }
-
     PaymentOption(
         text = "Enter card details",
-        isSelectedOption = selectedPaymentOption is PaymentOptions.NewCard,
-        onOptionSelected = { onPaymentOptionSelected(valid) }
+        isSelectedOption = selectedPaymentOption.value is PaymentOptions.NewCard,
+        onOptionSelected = onPaymentOptionSelected
     )
 
     FramesHost(
-        config = config,
-        actions = object : FramesHostActions {
-            override fun onCardValid(isValid: Boolean) {
-                valid = isValid
-
-                onPaymentOptionSelected(valid)
-            }
-
-            override fun onActionComplete(response: String) {
-                TODO("Not yet implemented")
-            }
-        }
+        props = FramesHostProps(
+            config = props.config,
+            command = props.command,
+            callback = props.callback,
+            framesMessage = props.message
+        )
     )
 }
 
 @Composable
 private fun ExistingCardDetails(
-    selectedPaymentOption: PaymentOptions?,
+    selectedPaymentOption: State<PaymentOptions>,
     onPaymentOptionSelected: (CreditCard) -> Unit,
-    cards: List<CreditCard>
+    cards: State<List<CreditCard>?>
 ) {
     var selectedCard: CreditCard? by remember { mutableStateOf(null) }
 
     PaymentOption(
         text = "Use an existing card stored in your digital wallet",
-        isSelectedOption = selectedPaymentOption is PaymentOptions.ExistingCard,
+        isSelectedOption = selectedPaymentOption.value is PaymentOptions.ExistingCard,
         onOptionSelected = { selectedCard?.let { onPaymentOptionSelected(it) } }
     )
 
@@ -166,14 +167,14 @@ private fun ExistingCardDetails(
             .selectableGroup()
             .padding(32.dp, 0.dp, 0.dp, 0.dp)
     ) {
-        cards.forEach { card ->
+        cards.value?.forEach { card ->
             CardRow(
                 selectedCard = selectedCard,
                 cardForRow = card,
                 onRowSelected = { chosenCard ->
                     selectedCard = chosenCard
 
-                    onPaymentOptionSelected(selectedCard!!)
+                    onPaymentOptionSelected(chosenCard)
                 }
             )
         }

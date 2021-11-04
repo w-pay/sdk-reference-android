@@ -9,6 +9,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -21,7 +22,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import au.com.wpay.sdk.paymentsimulator.model.PaymentOptions
 import au.com.wpay.sdk.paymentsimulator.payment.PaymentDetails
+import au.com.wpay.sdk.paymentsimulator.payment.PaymentDetailsFramesConfig
 import au.com.wpay.sdk.paymentsimulator.payment.PaymentDetailsProps
 import au.com.wpay.sdk.paymentsimulator.settings.WPaySettings
 import au.com.wpay.sdk.paymentsimulator.settings.defaultSettingsProps
@@ -151,8 +154,14 @@ private fun Navigation(
         composable(route = Routes.PaymentDetails.route) {
             PaymentDetails(
                 props = PaymentDetailsProps(
-                    cards = viewModel.paymentInstruments.value!!,
-                    framesConfig = viewModel.framesConfig
+                    framesConfig = PaymentDetailsFramesConfig(
+                        config = viewModel.framesConfig,
+                        callback = viewModel,
+                        command = viewModel.framesCommand.observeAsState(),
+                        message = viewModel.framesMessage.observeAsState(initial = "")
+                    ),
+                    cards = viewModel.paymentInstruments.observeAsState(),
+                    selectedPaymentOption = viewModel.paymentOption.observeAsState(PaymentOptions.NoOption)
                 ),
                 actions = viewModel
             )
