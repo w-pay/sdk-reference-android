@@ -9,6 +9,7 @@ import au.com.woolworths.village.sdk.model.*
 import au.com.wpay.frames.FramesError
 import au.com.wpay.frames.FramesView
 import au.com.wpay.frames.JavascriptCommand
+import au.com.wpay.frames.types.ActionType
 import au.com.wpay.frames.types.FramesConfig
 import au.com.wpay.frames.types.LogLevel
 import au.com.wpay.sdk.paymentsimulator.model.*
@@ -54,6 +55,8 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
 
     private var fraudPayload: FraudPayload? = null
     private var challengeResponses: List<ChallengeResponse> = mutableListOf()
+
+    private lateinit var windowSize: ActionType.AcsWindowSize
 
     override fun onError(error: Exception) {
         this.error.postValue(error)
@@ -232,6 +235,8 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
         customer: SimulatorCustomerOptions,
         authToken: String?
     ) {
+        windowSize = merchant.windowSize
+
         authToken?.let {
             val options = VillageMerchantOptions(
                 apiKey = customer.apiKey,

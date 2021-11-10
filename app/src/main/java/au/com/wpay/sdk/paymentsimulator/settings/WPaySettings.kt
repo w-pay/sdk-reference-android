@@ -11,7 +11,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import au.com.woolworths.village.sdk.Wallet
 import au.com.woolworths.village.sdk.model.FraudPayload
-import au.com.woolworths.village.sdk.model.NewPaymentRequest
+import au.com.wpay.frames.types.ActionType
 import au.com.wpay.sdk.paymentsimulator.model.SimulatorCustomerOptions
 import au.com.wpay.sdk.paymentsimulator.model.SimulatorMerchantOptions
 import au.com.wpay.sdk.paymentsimulator.model.SimulatorPaymentRequest
@@ -45,7 +45,7 @@ fun WPaySettings(
             apiKey = remember { mutableStateOf(props.merchant.apiKey) },
             require3DSNPA = remember { mutableStateOf(props.merchant.require3DSNPA) },
             require3DSPA = remember { mutableStateOf(props.merchant.require3DSPA) },
-            threeDSWindowSize = remember { mutableStateOf(null) }
+            threeDSWindowSize = remember { mutableStateOf(props.merchant.threeDSWindowSizes[0].size ) }
         ),
         customer = CustomerData(
             userId = remember { mutableStateOf(props.customer.userId) },
@@ -139,10 +139,10 @@ fun WPaySettings(
                 text = "3DS - Window Size",
                 input = {
                     ComboBox(
-                        items = props.merchant.threeDSWindowSizes,
+                        items = props.merchant.threeDSWindowSizes.map { "${it.size.code} - ${it.displaySize}" },
                         modifier = Modifier.weight(1f),
                         onClick = {
-                            data.merchant.threeDSWindowSize.value = props.merchant.threeDSWindowSizes[it]
+                            data.merchant.threeDSWindowSize.value = props.merchant.threeDSWindowSizes[it].size
                         }
                     )
                 }
@@ -334,7 +334,8 @@ private suspend fun createPaymentRequest(
                 wallet = when (data.customer.useEveryDayPay.value) {
                     true -> Wallet.EVERYDAY_PAY
                     else -> Wallet.MERCHANT
-                }
+                },
+                windowSize = data.merchant.threeDSWindowSize.value
             ),
             customer = SimulatorCustomerOptions(
                 baseUrl = data.env.value.baseUrl,
@@ -374,7 +375,7 @@ private data class MerchantData(
     val apiKey: MutableState<String>,
     val require3DSNPA: MutableState<Boolean>,
     val require3DSPA: MutableState<Boolean>,
-    val threeDSWindowSize: MutableState<String?>
+    val threeDSWindowSize: MutableState<ActionType.AcsWindowSize>
 )
 
 private data class CustomerData(

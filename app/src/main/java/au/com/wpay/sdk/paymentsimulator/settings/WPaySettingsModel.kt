@@ -2,6 +2,7 @@ package au.com.wpay.sdk.paymentsimulator.settings
 
 import au.com.woolworths.village.sdk.model.FraudPayload
 import au.com.woolworths.village.sdk.model.FraudPayloadFormat
+import au.com.wpay.frames.types.ActionType
 import au.com.wpay.sdk.paymentsimulator.PaymentSimulatorActions
 import au.com.wpay.sdk.paymentsimulator.model.SimulatorCustomerOptions
 import au.com.wpay.sdk.paymentsimulator.model.SimulatorMerchantOptions
@@ -19,7 +20,7 @@ data class WPayMerchantSettings(
     val apiKey: String,
     val require3DSNPA: Boolean,
     val require3DSPA: Boolean,
-    val threeDSWindowSizes: List<String>
+    val threeDSWindowSizes: List<ThreeDSWindowSizes>
 )
 
 data class WPayCustomerSettings(
@@ -36,12 +37,17 @@ data class InitialPaymentRequest(
     val fraudPayload: FraudPayload
 )
 
+data class ThreeDSWindowSizes(
+    val size: ActionType.AcsWindowSize,
+    val displaySize: String
+)
+
 @Suppress("DeferredIsResult")
 interface WPaySettingsActions : PaymentSimulatorActions {
     fun onCreatePaymentRequest(
         merchant: SimulatorMerchantOptions,
         customer: SimulatorCustomerOptions,
-        paymentRequest: SimulatorPaymentRequest,
+        paymentRequest: SimulatorPaymentRequest
     ): Deferred<Unit>
 }
 
@@ -53,12 +59,11 @@ fun defaultSettingsProps() =
             require3DSNPA = false,
             require3DSPA = false,
             threeDSWindowSizes = listOf(
-                "",
-                "01 - 250x400",
-                "02 - 390x400",
-                "03 - 500x600",
-                "04 - 600x400",
-                "05 - Full Page"
+                ThreeDSWindowSizes(ActionType.AcsWindowSize.ACS_250x400, "250x400"),
+                ThreeDSWindowSizes(ActionType.AcsWindowSize.ACS_390x400, "390x400"),
+                ThreeDSWindowSizes(ActionType.AcsWindowSize.ACS_500x600, "500x600"),
+                ThreeDSWindowSizes(ActionType.AcsWindowSize.ACS_600x400, "600x400"),
+                ThreeDSWindowSizes(ActionType.AcsWindowSize.ACS_FULL_PAGE, "Full Page")
             )
         ),
         customer = WPayCustomerSettings(
