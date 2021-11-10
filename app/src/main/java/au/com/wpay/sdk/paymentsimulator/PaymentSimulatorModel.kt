@@ -6,9 +6,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import au.com.woolworths.village.sdk.*
 import au.com.woolworths.village.sdk.model.*
-import au.com.wpay.frames.FramesError
-import au.com.wpay.frames.FramesView
-import au.com.wpay.frames.JavascriptCommand
+import au.com.wpay.frames.*
+import au.com.wpay.frames.dto.CardCaptureResponse
+import au.com.wpay.frames.dto.ThreeDSError
+import au.com.wpay.frames.dto.ValidateCardResponse
 import au.com.wpay.frames.types.ActionType
 import au.com.wpay.frames.types.FramesConfig
 import au.com.wpay.frames.types.LogLevel
@@ -16,12 +17,19 @@ import au.com.wpay.sdk.paymentsimulator.model.*
 import au.com.wpay.sdk.paymentsimulator.payment.*
 import au.com.wpay.sdk.paymentsimulator.settings.WPaySettingsActions
 import kotlinx.coroutines.*
+import org.json.JSONArray
 import java.lang.IllegalArgumentException
 import java.lang.IllegalStateException
 
 interface PaymentSimulatorActions {
     fun onError(error: Exception)
 }
+
+/*
+ * When a Frames SDK action completes, we want to handle the result differently based on the command
+ * that was being executed
+ */
+typealias FramesActionHandler = (String) -> Unit
 
 @Suppress("DeferredIsResult")
 class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsActions, WPaySettingsActions {
@@ -52,6 +60,8 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
     private var cardNumberValid: Boolean = false
     private var cardExpiryValid: Boolean = false
     private var cardCvvValid: Boolean = false
+
+    private var framesActionHandler: FramesActionHandler = ::onCaptureCard
 
     private var fraudPayload: FraudPayload? = null
     private var challengeResponses: List<ChallengeResponse> = mutableListOf()
@@ -122,6 +132,13 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
 
     override fun onComplete(response: String) {
         debug("onComplete(response: $response)")
+
+        try {
+            framesActionHandler(response)
+        }
+        catch (e: Exception) {
+            onError(e)
+        }
     }
 
     override fun onError(error: FramesError) {
@@ -171,8 +188,50 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
         }
     }
 
-    private fun completeCapturingCard() {
+    private fun onCaptureCard(data: String) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                val response = CardCaptureResponse.fromJson(data)
+                val instrumentId = response.paymentInstrument?.itemId
 
+                if (response.threeDSError == ThreeDSError.TOKEN_REQUIRED) {
+                    validateCard(response.threeDSToken!!)
+                }
+
+                if (response.status?.responseText == "ACCEPTED") {
+                    val cards = listPaymentInstruments()
+                    val card = cards?.find { it.paymentInstrumentId == instrumentId }
+
+                    card?.let {
+                        makePayment(PaymentOptions.ExistingCard(it))
+                    }
+                }
+            }
+        }
+    }
+
+    private fun onValidateCard(data: String) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                val response = ValidateCardResponse.fromJson(data)
+
+                framesActionHandler = this@PaymentSimulatorModel::onCaptureCard
+
+                framesCommand.postValue(CompleteActionCommand(CAPTURE_CARD_ACTION, JSONArray().apply {
+                    response.challengeResponse?.let { put(it.toJson()) }
+                }))
+            }
+        }
+    }
+
+    private fun completeCapturingCard() {
+        framesCommand.postValue(SubmitFormCommand(CAPTURE_CARD_ACTION))
+    }
+
+    private fun validateCard(threeDSToken: String) {
+        framesActionHandler = ::onValidateCard
+
+        framesCommand.postValue(cardValidateCommand(threeDSToken, windowSize))
     }
 
     private fun payWithCard(card: CreditCard) {
@@ -273,16 +332,25 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
             is ApiResult.Error -> onError(result.e)
         }
 
-    private fun listPaymentInstruments() =
+    private fun listPaymentInstruments(): List<CreditCard>? =
         when (val result = customerSDK.instruments.list()) {
-            is ApiResult.Error -> onError(result.e)
+            is ApiResult.Error -> {
+                onError(result.e)
+
+                null
+            }
+
             is ApiResult.Success -> {
-                if (customerSDK.options.wallet == Wallet.EVERYDAY_PAY) {
-                    paymentInstruments.postValue(result.value.everydayPay?.creditCards)
+                val cards = if (customerSDK.options.wallet == Wallet.EVERYDAY_PAY) {
+                    result.value.everydayPay?.creditCards
                 }
                 else {
-                    paymentInstruments.postValue(result.value.creditCards)
+                    result.value.creditCards
                 }
+
+                paymentInstruments.postValue(cards)
+
+                cards
             }
         }
 

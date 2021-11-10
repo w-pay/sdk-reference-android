@@ -122,8 +122,8 @@ private fun PaymentChoices(
             onClick = {
                 scope.launch {
                     makingPayment = true
+
                     actions.makePayment(props.selectedPaymentOption.value)
-                    makingPayment = false
                 }
             }
         )

@@ -11,9 +11,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import au.com.wpay.frames.*
-import au.com.wpay.frames.types.ActionType
-import au.com.wpay.frames.types.ControlType
+import au.com.wpay.frames.DebugLogger
+import au.com.wpay.frames.FramesView
+import au.com.wpay.frames.JavascriptCommand
 import au.com.wpay.frames.types.FramesConfig
 
 const val CARD_NO_DOM_ID = "cardNoElement"
@@ -88,19 +88,3 @@ fun FramesHost(
         )
     }
 }
-
-fun cardCaptureCommand(): JavascriptCommand =
-    BuildFramesCommand(
-        ActionType.CaptureCard(cardCaptureOptions()).toCommand(),
-        StartActionCommand,
-        CreateActionControlCommand(ControlType.CARD_NUMBER, CARD_NO_DOM_ID),
-        CreateActionControlCommand(ControlType.CARD_EXPIRY, CARD_EXPIRY_DOM_ID),
-        CreateActionControlCommand(ControlType.CARD_CVV, CARD_CVV_DOM_ID)
-    )
-
-fun cardCaptureOptions() =
-    ActionType.CaptureCard.Payload(
-        verify = true,
-        save = true,
-        env3DS = null
-    )
