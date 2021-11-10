@@ -11,7 +11,6 @@ import au.com.wpay.frames.JavascriptCommand
 import au.com.wpay.frames.types.FramesConfig
 import au.com.wpay.frames.types.LogLevel
 import au.com.wpay.sdk.paymentsimulator.model.PaymentOptions
-import kotlinx.coroutines.Deferred
 import org.threeten.bp.OffsetDateTime
 import java.net.URL
 
@@ -34,7 +33,9 @@ interface PaymentDetailsActions {
 
     fun selectExistingCardPaymentOption(card: CreditCard)
 
-    fun makePayment(paymentOption: PaymentOptions): Deferred<Unit>
+    suspend fun makePayment(paymentOption: PaymentOptions)
+
+    suspend fun deleteCard(card: CreditCard)
 }
 
 fun fakeCreditCards(): List<CreditCard> =

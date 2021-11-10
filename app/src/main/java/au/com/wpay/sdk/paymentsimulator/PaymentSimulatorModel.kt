@@ -14,10 +14,7 @@ import au.com.wpay.frames.types.LogLevel
 import au.com.wpay.sdk.paymentsimulator.model.*
 import au.com.wpay.sdk.paymentsimulator.payment.*
 import au.com.wpay.sdk.paymentsimulator.settings.WPaySettingsActions
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import java.lang.IllegalArgumentException
 import java.lang.IllegalStateException
 
@@ -93,8 +90,8 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
         ))
     }
 
-    override fun makePayment(paymentOption: PaymentOptions): Deferred<Unit> {
-        return viewModelScope.async {
+    override suspend fun makePayment(paymentOption: PaymentOptions) {
+        viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 when (paymentOption) {
                     is PaymentOptions.NewCard -> completeCapturingCard()
@@ -104,6 +101,17 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
                             ?: run { throw IllegalArgumentException("Missing card") }
 
                     else -> { throw IllegalStateException("Can't pay with nothing") }
+                }
+            }
+        }
+    }
+
+    override suspend fun deleteCard(card: CreditCard) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                when (val result = customerSDK.instruments.delete(card.paymentInstrumentId)) {
+                    is ApiResult.Error -> onError(result.e)
+                    is ApiResult.Success -> listPaymentInstruments()
                 }
             }
         }

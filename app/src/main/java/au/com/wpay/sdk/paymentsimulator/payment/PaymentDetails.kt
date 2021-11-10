@@ -21,8 +21,6 @@ import au.com.wpay.sdk.paymentsimulator.model.PaymentOptions
 import au.com.wpay.sdk.paymentsimulator.ui.components.LayoutBox
 import au.com.wpay.sdk.paymentsimulator.ui.components.PrimaryButton
 import au.com.wpay.sdk.paymentsimulator.ui.theme.Typography
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 @Composable
@@ -41,8 +39,6 @@ fun PaymentDetails(
 @Preview
 @Composable
 private fun PaymentDetailsPreview() {
-    val scope = rememberCoroutineScope()
-
     PaymentDetails(
         props = PaymentDetailsProps(
             framesConfig = fakeFramesConfig(),
@@ -58,9 +54,12 @@ private fun PaymentDetailsPreview() {
 
             }
 
-            @Suppress("DeferredIsResult")
-            override fun makePayment(paymentOption: PaymentOptions): Deferred<Unit> {
-                return scope.async {}
+            override suspend fun makePayment(paymentOption: PaymentOptions) {
+
+            }
+
+            override suspend fun deleteCard(card: CreditCard) {
+
             }
         }
     )
@@ -100,6 +99,11 @@ private fun PaymentChoices(
             onPaymentOptionSelected = { card ->
                 actions.selectExistingCardPaymentOption(card)
             },
+            onDeleteCard = { card ->
+                scope.launch {
+                    actions.deleteCard(card)
+                }
+            },
             cards = props.cards
         )
     }
@@ -118,7 +122,7 @@ private fun PaymentChoices(
             onClick = {
                 scope.launch {
                     makingPayment = true
-                    actions.makePayment(props.selectedPaymentOption.value).await()
+                    actions.makePayment(props.selectedPaymentOption.value)
                     makingPayment = false
                 }
             }
@@ -152,6 +156,7 @@ private fun NewCardDetails(
 private fun ExistingCardDetails(
     selectedPaymentOption: State<PaymentOptions>,
     onPaymentOptionSelected: (CreditCard) -> Unit,
+    onDeleteCard: (CreditCard) -> Unit,
     cards: State<List<CreditCard>?>
 ) {
     var selectedCard: CreditCard? by remember { mutableStateOf(null) }
@@ -175,7 +180,8 @@ private fun ExistingCardDetails(
                     selectedCard = chosenCard
 
                     onPaymentOptionSelected(chosenCard)
-                }
+                },
+                onDeleteCard = onDeleteCard
             )
         }
     }
@@ -185,6 +191,7 @@ private fun ExistingCardDetails(
 private fun CardRow(
     selectedCard: CreditCard?,
     onRowSelected: (CreditCard) -> Unit,
+    onDeleteCard: (CreditCard) -> Unit,
     cardForRow: CreditCard
 ) {
     Row(
@@ -203,7 +210,7 @@ private fun CardRow(
 
         IconButton(
             modifier = Modifier.weight(1f),
-            onClick = { /* doSomething() */ }
+            onClick = { onDeleteCard(cardForRow) }
         ) {
             Icon(Icons.Filled.Delete, contentDescription = "Delete card")
         }
