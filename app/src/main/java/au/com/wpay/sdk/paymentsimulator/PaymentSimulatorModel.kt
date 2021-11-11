@@ -251,7 +251,7 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
                 val result = customerSDK.paymentRequests.makePayment(
                     paymentRequestId = paymentRequest.value!!.paymentRequestId,
                     primaryInstrument = card.paymentInstrumentId,
-                    secondaryInstruments = null,
+                    secondaryInstruments = emptyList(),
                     clientReference = null,
                     preferences = null,
                     challengeResponses = challengeResponses,
