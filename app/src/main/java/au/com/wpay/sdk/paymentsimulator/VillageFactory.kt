@@ -1,9 +1,30 @@
 package au.com.wpay.sdk.paymentsimulator
 
 import au.com.woolworths.village.sdk.*
-import au.com.woolworths.village.sdk.openapi.OpenApiCustomerApiRepositoryFactory
-import au.com.woolworths.village.sdk.openapi.OpenApiMerchantApiRepositoryFactory
+import au.com.woolworths.village.sdk.auth.ApiAuthenticator
+import au.com.woolworths.village.sdk.auth.HasAccessToken
+import au.com.woolworths.village.sdk.openapi.*
 import au.com.wpay.sdk.paymentsimulator.model.SimulatorCustomerOptions
+
+val openApiCustomerApiRepositoryFactory: CustomerApiRepositoryFactory =
+    fun(options: VillageCustomerOptions,
+        headers: RequestHeadersFactory,
+        authenticator: ApiAuthenticator<HasAccessToken>
+    ): VillageCustomerApiRepository {
+        return OpenApiVillageCustomerApiRepository(headers, options, authenticator, ClientOptions(
+            debug = true
+        ))
+    }
+
+val openApiMerchantApiRepositoryFactory: MerchantApiRepositoryFactory =
+    fun(options: VillageMerchantOptions,
+        headers: RequestHeadersFactory,
+        authenticator: ApiAuthenticator<HasAccessToken>
+    ): VillageMerchantApiRepository {
+        return OpenApiVillageMerchantApiRepository(headers, options, authenticator, ClientOptions(
+            debug = true
+        ))
+    }
 
 fun createCustomerSDK(
     options: VillageCustomerOptions,
@@ -13,7 +34,7 @@ fun createCustomerSDK(
         options,
         // see the docs on how we can use different token types.
         ApiTokenType.StringToken(token),
-        OpenApiCustomerApiRepositoryFactory
+        openApiCustomerApiRepositoryFactory
     )
 
 fun createMerchantSDK(
@@ -24,7 +45,7 @@ fun createMerchantSDK(
         options,
         // see the docs on how we can use different token types.
         ApiTokenType.StringToken(token),
-        OpenApiMerchantApiRepositoryFactory
+        openApiMerchantApiRepositoryFactory
     )
 
 fun createCustomerLoginAuthenticator(
