@@ -66,6 +66,8 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
     private var fraudPayload: FraudPayload? = null
     private var challengeResponses: List<ChallengeResponse> = mutableListOf()
 
+    private var require3DSNPA: Boolean = false
+    private var customerWallet: Wallet? = null
     private lateinit var windowSize: ActionType.AcsWindowSize
 
     override fun onError(error: Exception) {
@@ -154,7 +156,10 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
     override fun onPageLoaded() {
         debug("onPageLoaded()")
 
-        framesCommand.postValue(cardCaptureCommand())
+        framesCommand.postValue(cardCaptureCommand(CardCaptureOptions(
+            wallet = customerWallet,
+            require3DS = require3DSNPA
+        )))
     }
 
     override fun onProgressChanged(progress: Int) {
@@ -198,6 +203,10 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
                     validateCard(response.threeDSToken!!)
                 }
 
+                if (response.threeDSError == ThreeDSError.VALIDATION_FAILED) {
+                    onError(Exception("Three DS Validation Failed"))
+                }
+
                 if (response.status?.responseText == "ACCEPTED") {
                     val cards = listPaymentInstruments()
                     val card = cards?.find { it.paymentInstrumentId == instrumentId }
@@ -217,9 +226,11 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
 
                 framesActionHandler = this@PaymentSimulatorModel::onCaptureCard
 
-                framesCommand.postValue(CompleteActionCommand(CAPTURE_CARD_ACTION, JSONArray().apply {
-                    response.challengeResponse?.let { put(it.toJson()) }
-                }))
+                framesCommand.postValue(GroupCommand("completeCardCapture",
+                    CompleteActionCommand(CAPTURE_CARD_ACTION, JSONArray().apply {
+                        response.challengeResponse?.let { put(it.toJson()) }
+                    })
+                ))
             }
         }
     }
@@ -274,6 +285,8 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
         customer: SimulatorCustomerOptions,
         authToken: String?
     ) {
+        customerWallet = customer.wallet
+
         authToken?.let {
             val options = VillageCustomerOptions(
                 apiKey = customer.apiKey,
@@ -295,6 +308,7 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
         authToken: String?
     ) {
         windowSize = merchant.windowSize
+        require3DSNPA = merchant.require3DSNPA
 
         authToken?.let {
             val options = VillageMerchantOptions(

@@ -10,5 +10,6 @@ class SimulatorMerchantOptions(
     wallet: Wallet? = null,
     merchantId: String? = null,
 
+    val require3DSNPA: Boolean,
     val windowSize: ActionType.AcsWindowSize
 ) : VillageMerchantOptions(apiKey, baseUrl, wallet, merchantId)

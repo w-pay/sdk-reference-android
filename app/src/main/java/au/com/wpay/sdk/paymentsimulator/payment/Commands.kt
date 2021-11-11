@@ -1,5 +1,6 @@
 package au.com.wpay.sdk.paymentsimulator.payment
 
+import au.com.woolworths.village.sdk.Wallet
 import au.com.wpay.frames.*
 import au.com.wpay.frames.types.ActionType
 import au.com.wpay.frames.types.ControlType
@@ -8,9 +9,14 @@ import au.com.wpay.frames.types.ThreeDSEnv
 const val CAPTURE_CARD_ACTION = "cardCapture"
 const val VALIDATE_CARD_ACTION = "validateCard"
 
-fun cardCaptureCommand(): JavascriptCommand =
+data class CardCaptureOptions(
+    val wallet: Wallet?,
+    val require3DS: Boolean
+)
+
+fun cardCaptureCommand(options: CardCaptureOptions): JavascriptCommand =
     BuildFramesCommand(
-        ActionType.CaptureCard(cardCaptureOptions()).toCommand(CAPTURE_CARD_ACTION),
+        ActionType.CaptureCard(cardCaptureOptions(options)).toCommand(CAPTURE_CARD_ACTION),
         StartActionCommand(CAPTURE_CARD_ACTION),
         CreateActionControlCommand(CAPTURE_CARD_ACTION, ControlType.CARD_NUMBER, CARD_NO_DOM_ID),
         CreateActionControlCommand(CAPTURE_CARD_ACTION, ControlType.CARD_EXPIRY, CARD_EXPIRY_DOM_ID),
@@ -27,11 +33,15 @@ fun cardValidateCommand(
         CompleteActionCommand(VALIDATE_CARD_ACTION)
     )
 
-fun cardCaptureOptions() =
+fun cardCaptureOptions(options: CardCaptureOptions) =
     ActionType.CaptureCard.Payload(
         verify = true,
         save = true,
-        env3DS = null
+        useEverydayPay = options.wallet == Wallet.EVERYDAY_PAY,
+        env3DS = when(options.require3DS) {
+            true -> ThreeDSEnv.STAGING
+            else -> null
+        }
     )
 
 fun validateCardOptions(sessionId: String, windowSize: ActionType.AcsWindowSize) =

@@ -85,7 +85,7 @@ dependencies {
     implementation "com.google.android.material:material:1.4.0"
 
     implementation "com.github.w-pay:sdk-wpay-android:v4.4.7"
-    implementation "com.github.w-pay:sdk-wpay-openapi-android:v4.5.0"
+    implementation "com.github.w-pay:sdk-wpay-openapi-android:v4.5.1"
     implementation "com.squareup.okhttp3:okhttp:4.9.0"
     implementation "com.squareup.okhttp3:logging-interceptor:4.9.0"
     implementation "com.google.code.gson:gson:2.8.7"
@@ -93,7 +93,7 @@ dependencies {
     // TODO: Replace when SDK exposes dependency
     implementation "org.threeten:threetenbp:1.4.4"
 
-    implementation "com.github.w-pay:sdk-wpay-android-frames:v0.4.1"
+    implementation "com.github.w-pay:sdk-wpay-android-frames:v0.4.2"
 
     testImplementation "junit:junit:4.13.2"
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"

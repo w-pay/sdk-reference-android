@@ -335,7 +335,8 @@ private suspend fun createPaymentRequest(
                     true -> Wallet.EVERYDAY_PAY
                     else -> Wallet.MERCHANT
                 },
-                windowSize = data.merchant.threeDSWindowSize.value
+                windowSize = data.merchant.threeDSWindowSize.value,
+                require3DSNPA = data.merchant.require3DSNPA.value
             ),
             customer = SimulatorCustomerOptions(
                 baseUrl = data.env.value.baseUrl,
