@@ -70,6 +70,11 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
     private var customerWallet: Wallet? = null
     private lateinit var windowSize: ActionType.AcsWindowSize
 
+    /*
+     * If we try to validate a card more than once, we should stop and fail.
+     */
+    private var validCardAttemptCounter = 0
+
     override fun onError(error: Exception) {
         this.error.postValue(error)
     }
@@ -211,9 +216,7 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
                     val cards = listPaymentInstruments()
                     val card = cards?.find { it.paymentInstrumentId == instrumentId }
 
-                    card?.let {
-                        makePayment(PaymentOptions.ExistingCard(it))
-                    }
+                    makePayment(PaymentOptions.ExistingCard(card))
                 }
             }
         }
@@ -236,13 +239,22 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
     }
 
     private fun completeCapturingCard() {
+        validCardAttemptCounter = 0
+
         framesCommand.postValue(SubmitFormCommand(CAPTURE_CARD_ACTION))
     }
 
     private fun validateCard(threeDSToken: String) {
-        framesActionHandler = ::onValidateCard
+        if (validCardAttemptCounter > 1) {
+            onError(Exception("Validate card attempt counter exceeded"))
+        }
+        else {
+            validCardAttemptCounter++
 
-        framesCommand.postValue(cardValidateCommand(threeDSToken, windowSize))
+            framesActionHandler = ::onValidateCard
+
+            framesCommand.postValue(cardValidateCommand(threeDSToken, windowSize))
+        }
     }
 
     private fun payWithCard(card: CreditCard) {
