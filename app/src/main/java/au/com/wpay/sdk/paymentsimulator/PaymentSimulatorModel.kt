@@ -213,7 +213,8 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
                     }
 
                 if (response.message == "3DS Validation Rejected" ||
-                    response.message == "3DS Validation Failed") {
+                    response.message == "3DS Validation Failed" ||
+                    response.message == "3DS Validation Timeout") {
                     failPayment(Exception(response.message))
                 }
 
