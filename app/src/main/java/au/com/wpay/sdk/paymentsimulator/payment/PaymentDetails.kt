@@ -18,6 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import au.com.woolworths.village.sdk.model.CreditCard
 import au.com.wpay.sdk.paymentsimulator.model.PaymentOptions
+import au.com.wpay.sdk.paymentsimulator.model.PaymentOutcomes
 import au.com.wpay.sdk.paymentsimulator.ui.components.LayoutBox
 import au.com.wpay.sdk.paymentsimulator.ui.components.PrimaryButton
 import au.com.wpay.sdk.paymentsimulator.ui.theme.Typography
@@ -43,7 +44,8 @@ private fun PaymentDetailsPreview() {
         props = PaymentDetailsProps(
             framesConfig = fakeFramesConfig(),
             cards = remember { mutableStateOf(fakeCreditCards()) },
-            selectedPaymentOption = remember { mutableStateOf(PaymentOptions.NoOption) }
+            selectedPaymentOption = remember { mutableStateOf(PaymentOptions.NoOption) },
+            paymentOutcome = remember { mutableStateOf(PaymentOutcomes.NoOutcome) }
         ),
         actions = object : PaymentDetailsActions {
             override fun selectNewCardPaymentOption() {
@@ -116,8 +118,11 @@ private fun PaymentChoices(
     ) {
         PrimaryButton(
             modifier = Modifier.fillMaxWidth(0.6f),
-            enabled = props.selectedPaymentOption.value.isValid() && !makingPayment,
-            waiting = makingPayment,
+            enabled =
+                props.selectedPaymentOption.value.isValid() &&
+                props.paymentOutcome.value == PaymentOutcomes.NoOutcome &&
+                !makingPayment,
+            waiting = makingPayment && props.paymentOutcome.value == PaymentOutcomes.NoOutcome,
             text = "Pay Now",
             onClick = {
                 scope.launch {

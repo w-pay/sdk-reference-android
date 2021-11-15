@@ -11,6 +11,7 @@ import au.com.wpay.frames.JavascriptCommand
 import au.com.wpay.frames.types.FramesConfig
 import au.com.wpay.frames.types.LogLevel
 import au.com.wpay.sdk.paymentsimulator.model.PaymentOptions
+import au.com.wpay.sdk.paymentsimulator.model.PaymentOutcomes
 import org.threeten.bp.OffsetDateTime
 import java.net.URL
 
@@ -24,7 +25,8 @@ data class PaymentDetailsFramesConfig(
 data class PaymentDetailsProps(
     val framesConfig: PaymentDetailsFramesConfig,
     val cards: State<List<CreditCard>?>,
-    val selectedPaymentOption: State<PaymentOptions>
+    val selectedPaymentOption: State<PaymentOptions>,
+    val paymentOutcome: State<PaymentOutcomes>
 )
 
 @Suppress("DeferredIsResult")

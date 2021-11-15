@@ -185,7 +185,8 @@ private fun Navigation(
                         message = viewModel.framesMessage.observeAsState(initial = "")
                     ),
                     cards = viewModel.paymentInstruments.observeAsState(),
-                    selectedPaymentOption = viewModel.paymentOption.observeAsState(PaymentOptions.NoOption)
+                    selectedPaymentOption = viewModel.paymentOption.observeAsState(PaymentOptions.NoOption),
+                    paymentOutcome = viewModel.paymentOutcome.observeAsState(PaymentOutcomes.NoOutcome)
                 ),
                 actions = viewModel
             )
