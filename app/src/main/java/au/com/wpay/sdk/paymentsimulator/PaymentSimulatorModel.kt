@@ -209,7 +209,7 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
                 }
 
                 if (response.threeDSError == ThreeDSError.VALIDATION_FAILED) {
-                    onError(Exception("Three DS Validation Failed"))
+                    failPayment(Exception("Three DS Validation Failed"))
                 }
 
                 if (response.status?.responseText == "ACCEPTED") {
@@ -246,7 +246,7 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
 
     private fun validateCard(threeDSToken: String) {
         if (validCardAttemptCounter > 1) {
-            onError(Exception("Validate card attempt counter exceeded"))
+            failPayment(Exception("Validate card attempt counter exceeded"))
         }
         else {
             validCardAttemptCounter++
@@ -282,9 +282,7 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
                     }
 
                     is ApiResult.Error -> {
-                        paymentOutcome.postValue(PaymentOutcomes.Failure(result.e.message))
-
-                        Log.e("PaymentSimulator", "Payment error", result.e)
+                        failPayment(result.e)
 
                         break
                     }
@@ -391,6 +389,12 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
                 null
             }
         }
+    }
+
+    private fun failPayment(error: Exception) {
+        paymentOutcome.postValue(PaymentOutcomes.Failure(error.message!!))
+
+        Log.e("PaymentSimulator", "Payment error", error)
     }
 
     private fun newCardValid(): Boolean =
