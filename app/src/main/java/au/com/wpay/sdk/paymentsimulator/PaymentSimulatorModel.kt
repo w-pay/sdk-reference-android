@@ -212,6 +212,9 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
                         }
                     }
 
+                if (response.message == "3DS Validation Rejected") {
+                    failPayment(Exception(response.message))
+                }
 
                 if (response.threeDSError == ThreeDSError.TOKEN_REQUIRED) {
                     validateCard(response.threeDSToken!!)
