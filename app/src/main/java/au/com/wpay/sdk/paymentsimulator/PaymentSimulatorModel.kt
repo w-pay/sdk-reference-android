@@ -202,7 +202,16 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 val response = CardCaptureResponse.fromJson(data)
-                val instrumentId = response.paymentInstrument?.itemId
+                val instrumentId =
+                    when {
+                        response.itemId != null -> {
+                            response.itemId
+                        }
+                        else -> {
+                            response.paymentInstrument?.itemId
+                        }
+                    }
+
 
                 if (response.threeDSError == ThreeDSError.TOKEN_REQUIRED) {
                     validateCard(response.threeDSToken!!)
