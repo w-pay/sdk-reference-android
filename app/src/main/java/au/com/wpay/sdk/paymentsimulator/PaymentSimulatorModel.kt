@@ -290,7 +290,14 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
                     is ApiResult.Success -> {
                         // TODO: Check for 3DS response
 
-                        paymentOutcome.postValue(PaymentOutcomes.Success)
+                        when (result.value.status) {
+                            TransactionSummary.PaymentStatus.APPROVED -> {
+                                paymentOutcome.postValue(PaymentOutcomes.Success)
+                            }
+                            else -> {
+                                paymentOutcome.postValue(PaymentOutcomes.Failure("Payment failed"))
+                            }
+                        }
 
                         break
                     }
