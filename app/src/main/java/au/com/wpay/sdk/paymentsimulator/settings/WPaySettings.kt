@@ -122,11 +122,15 @@ fun WPaySettings(
                 }
             )
 
+            /*
+             * TODO: Disabled until the SDK types subtransactions
+             */
             Setting(
                 text = "Require 3DS - Payment",
                 input = {
                     Checkbox(
-                        checked = data.merchant.require3DSPA.value,
+                        checked = false,
+                        enabled = false,
                         modifier = Modifier.weight(1f),
                         onCheckedChange = {
                             data.merchant.require3DSPA.value = it
