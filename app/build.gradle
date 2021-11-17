@@ -1,14 +1,8 @@
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
-
-Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
-def contextRoot = properties.getProperty('qr.context.root', "/wow/v1/pay/instore")
+apply plugin: "com.android.application"
+apply plugin: "kotlin-android"
+apply plugin: "kotlin-android-extensions"
 
 repositories {
-    google()
-    jcenter()
     maven {
         url "https://packagecloud.io/priv/bc13bd84498902eb8e175af58317f7564db01fa74c03db1b/woolworths/paysdk2/maven2"
     }
@@ -16,24 +10,18 @@ repositories {
 
 android {
     compileSdkVersion rootProject.ext.targetSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
-        applicationId "au.com.woolworths.village.sdk.app"
+        applicationId "au.com.wpay.sdk.paymentsimulator"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 8
-        versionName "1.2.0"
-
-        manifestPlaceholders = [
-            qr_scheme: properties.getProperty('qr.scheme'),
-            qr_hostname: properties.getProperty('qr.hostname'),
-            qr_port: properties.getProperty('qr.port'),
-            qr_context_root: contextRoot,
-            qr_pattern: "${contextRoot}/customer/qr/.*"
-        ]
+        versionCode 1
+        versionName "1.0.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables {
+            useSupportLibrary true
+        }
     }
 
     compileOptions {
@@ -43,46 +31,74 @@ android {
 
     kotlinOptions {
         jvmTarget = "1.8"
+        useIR = true
     }
 
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }
     }
 
     buildFeatures {
         viewBinding = true
+        compose true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion compose_version
+        kotlinCompilerVersion "1.5.21"
+    }
+
+    packagingOptions {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
     }
 }
 
 ext {
     coroutines_version = "1.3.6"
-    lifecycle_version = "2.2.0"
+    lifecycle_version = "2.3.1"
     activity_version = "1.1.0"
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
 
     implementation "androidx.activity:activity-ktx:$activity_version"
-    implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'androidx.core:core-ktx:1.2.0'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-    implementation 'androidx.coordinatorlayout:coordinatorlayout:1.1.0'
+    implementation "androidx.activity:activity-compose:1.3.1"
+    implementation "androidx.appcompat:appcompat:1.3.1"
+    implementation "androidx.compose.material:material:1.1.0-alpha06"
+    implementation "androidx.compose.runtime:runtime-livedata:$compose_version"
+    implementation "androidx.compose.ui:ui:$compose_version"
+    implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
+    implementation "androidx.core:core-ktx:1.6.0"
+    implementation "androidx.constraintlayout:constraintlayout:2.1.1"
+    implementation "androidx.coordinatorlayout:coordinatorlayout:1.1.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
-    implementation 'com.google.android.material:material:1.1.0'
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
+    implementation "androidx.navigation:navigation-compose:2.4.0-alpha10"
+    implementation "com.google.android.material:material:1.4.0"
 
-    implementation("au.com.woolworths.village.sdk:sdk:4.2.1")
-    implementation("au.com.woolworths.village.sdk.openapi:lib:4.2.1")
+    implementation "com.github.w-pay:sdk-wpay-android:v4.4.7"
+    implementation "com.github.w-pay:sdk-wpay-openapi-android:v4.5.1"
+    implementation "com.squareup.okhttp3:okhttp:4.9.0"
+    implementation "com.squareup.okhttp3:logging-interceptor:4.9.0"
+    implementation "com.google.code.gson:gson:2.8.7"
 
-    implementation 'com.squareup.okhttp3:okhttp:4.7.2'
-    implementation 'com.google.code.gson:gson:2.8.6'
+    // TODO: Replace when SDK exposes dependency
+    implementation "org.threeten:threetenbp:1.4.4"
 
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    implementation "com.github.w-pay:sdk-wpay-android-frames:v0.4.3"
+
+    testImplementation "junit:junit:4.13.2"
+    androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
+    androidTestImplementation "androidx.test.espresso:espresso-core:3.4.0"
+    androidTestImplementation "androidx.test.ext:junit:1.1.3"
+
+    debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
 }

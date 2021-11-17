@@ -1,4 +1,4 @@
 <resources>
-    <string name="app_name">Village Reference App</string>
-    <string name="ok">OK</string>
+    <string name="app_name">WPay Payment Simulator</string>
+    <string name="title_activity_main">WPay Payment Simulator</string>
 </resources>

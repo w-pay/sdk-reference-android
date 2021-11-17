@@ -1,51 +1,38 @@
-# Woolies Village Wallet Android SDK Reference App
+# WPay Wallet Android SDK Reference App
 
-This app show cases the use of the Village Customer APIs.
+This app is designed to show how to use the WPay APIs and SDKs
+
+(Before WPay was released, the initial version was called "Village". Over time, "Village" will be
+removed and replaced)
 
 # Usage
 
-The app is designed to scan a QR code representing a `Payment Request`
-from a merchant via the devices Camera Application. If the user selects
-to open the app, the `Payment Request` details are fetched from an
-(authenticated) API along with some `Payment Instruments`. The user can
-then make the payment using an instrument.
+The app shows the usage of the WPay
+- [Android SDK](https://github.com/w-pay/sdk-wpay-android)
+- [Android Frames SDK](https://github.com/w-pay/sdk-wpay-android-frames/)
 
-This workflow showcases the use of the Village Customer API, including
-how to instantiate the SDK and integrate it into an application.
+The workflow the app demonstrates is the creation of a payment request by a given merchant, and
+allowing a customer to make a payment. When the customer makes the payment they have the option
+to use a preexisting card in their wallet, or capture a new credit card using the WPay Frames
+API/SDKs.
 
-The entry point into the app is the `PaymentConfirm` Activity which holds
-an instance of the `Village` API in the `ViewModel`.
+The settings screen allows for different settings to be applied such as which merchant to use,
+customer details and payment details.
 
-In order to retrieve the `Payment Request` details, the
-`Payment Instruments` and to actually make a payment, the application
-demonstrates the use of Bearer tokens to access the API.
+The second screen allows the management of payment instruments and the making of a payment.
 
-For an existing application, hopefully it can be deduced how to incorporate
-the SDK from the `VillageFactory`. Everything in the SDK conforms to an
-interface, so if applications have a specific requirement or existing
-technology/authentication requirements and class that implements the
-interface can be used.
+## Places of interest
 
-### Postman collection
+For new developers, the main place of interest is the `PaymentSimulatorModel`. This is the View Model
+that holds all the state for the app including the SDK instances, implementations of callbacks
+and orchestration logic.
 
-In order to use the app, a merchant has to create the `Payment Request`
-for a basket of goods. The Postman collection in this repo can be used
-to make API calls to the Village "Merchant" API to simulate a merchant.
-To use the collection, import both the collection and the environment details
-into Postman. The collection is parameterised so it can be used against
-different environments.
+The `PaymentSimulatorModel` implements callbacks that are invoked from the Frames SDK with the
+results of posting `JavascriptCommand`s into the SDK. This is the bridge between native apps, and
+the JS code being executed to capture a card.
 
-In order to create a `Payment Request` the `Create Payment Request` request
-in the Postman collection can be used. To get the QR code (as an image)
-for the `Payment Request` the collection's `Get QR Code` request can be used
-(with the `qrId` from the `Create Payment Request` response).
-
-If wanting to launch the app on a Emulator where it's not possible to
-scan a QR code, use an Android Studio Run Configuration where the `Launch`
-option is set to `URL` and the URL is the same URL as what is in the QR code
-itself (and is in `qr.content` in the `Create Payment Request` response).
-
-For example: `https://dev.mobile-api.woolworths.com.au:443/wow/v1/dpwallet/customer/qr/c533c84f-a5d5-4873-bb68-8921d8c91197`
+The `PaymentSimulatorModel` also demonstrates the usages of the WPay API SDK both as a customer
+and as a merchant.
 
 # Building
 
