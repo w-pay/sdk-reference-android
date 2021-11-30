@@ -171,8 +171,20 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
         debug("onProgressChanged(progress: $progress)")
     }
 
-    override fun onRendered() {
-        debug("onRendered()")
+    override fun onRendered(id: String) {
+        debug("onRendered($id)")
+
+        when(id) {
+            VALIDATE_CARD_ACTION -> framesCommand.postValue(ShowValidationChallenge)
+        }
+    }
+
+    override fun onRemoved(id: String) {
+        debug("onRemoved($id)")
+
+        when(id) {
+            VALIDATE_CARD_ACTION -> framesCommand.postValue(HideValidationChallenge)
+        }
     }
 
     override fun onValidationChange(domId: String, isValid: Boolean) {

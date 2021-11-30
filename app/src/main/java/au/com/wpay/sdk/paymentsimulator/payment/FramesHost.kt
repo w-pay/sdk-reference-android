@@ -16,18 +16,23 @@ import au.com.wpay.frames.FramesView
 import au.com.wpay.frames.JavascriptCommand
 import au.com.wpay.frames.types.FramesConfig
 
+const val CARD_CAPTURE_DOM_ID = "cardCaptureGroup"
 const val CARD_NO_DOM_ID = "cardNoElement"
 const val CARD_EXPIRY_DOM_ID = "cardExpiryElement"
 const val CARD_CVV_DOM_ID = "cardCvvElement"
+const val VALIDATE_CARD_DOM_ID = "validateCardElement"
 
 private const val HTML = """
 <html>
   <body>
-    <div id="$CARD_NO_DOM_ID"></div>
-    <div>
-      <div id="$CARD_EXPIRY_DOM_ID" style="display: inline-block; width: 50%"></div>
-      <div id="$CARD_CVV_DOM_ID" style="display: inline-block; width: 40%; float: right;"></div>
+    <div id="$CARD_CAPTURE_DOM_ID">
+      <div id="$CARD_NO_DOM_ID"></div>
+      <div>
+        <div id="$CARD_EXPIRY_DOM_ID" style="display: inline-block; width: 50%"></div>
+        <div id="$CARD_CVV_DOM_ID" style="display: inline-block; width: 40%; float: right;"></div>
+      </div>
     </div>
+    <div id="$VALIDATE_CARD_DOM_ID" style="display: none;"></div>
   </body>
 </html>
 """

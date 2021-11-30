@@ -140,7 +140,11 @@ var fakeCallback = object : FramesView.Callback {
 
     }
 
-    override fun onRendered() {
+    override fun onRendered(id: String) {
+
+    }
+
+    override fun onRemoved(id: String) {
 
     }
 

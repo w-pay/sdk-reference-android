@@ -30,6 +30,7 @@ fun cardValidateCommand(
     GroupCommand("validateCard",
         ActionType.ValidateCard(validateCardOptions(sessionId, windowSize)).toCommand(VALIDATE_CARD_ACTION),
         StartActionCommand(VALIDATE_CARD_ACTION),
+        CreateActionControlCommand(VALIDATE_CARD_ACTION, ControlType.VALIDATE_CARD, VALIDATE_CARD_DOM_ID),
         CompleteActionCommand(VALIDATE_CARD_ACTION)
     )
 
@@ -50,3 +51,31 @@ fun validateCardOptions(sessionId: String, windowSize: ActionType.AcsWindowSize)
         acsWindowSize = windowSize,
         env3DS = ThreeDSEnv.STAGING
     )
+
+object ShowValidationChallenge : JavascriptCommand(
+    """
+      frames.showValidationChallenge = function() {
+        const cardCapture = document.getElementById('${CARD_CAPTURE_DOM_ID}');
+        cardCapture.style.display = "none";
+        
+        const challenge = document.getElementById('${VALIDATE_CARD_DOM_ID}');
+        challenge.style.display = "block";
+      };
+      
+      frames.showValidationChallenge();
+    """.trimMargin()
+)
+
+object HideValidationChallenge : JavascriptCommand(
+    """
+      frames.showValidationChallenge = function() {
+        const cardCapture = document.getElementById('${CARD_CAPTURE_DOM_ID}');
+        cardCapture.style.display = "block";
+        
+        const challenge = document.getElementById('${VALIDATE_CARD_DOM_ID}');
+        challenge.style.display = "none";
+      };
+      
+      frames.showValidationChallenge();
+    """.trimMargin()
+)
