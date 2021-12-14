@@ -216,7 +216,7 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
                 val response = CardCaptureResponse.fromJson(data)
                 val instrumentId =
                     when {
-                        response.itemId != null -> {
+                        (response.itemId != null && response.itemId != "") -> {
                             response.itemId
                         }
                         else -> {
@@ -307,7 +307,7 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
                                 paymentOutcome.postValue(PaymentOutcomes.Success)
                             }
                             else -> {
-                                paymentOutcome.postValue(PaymentOutcomes.Failure("Payment failed"))
+                                paymentOutcome.postValue(PaymentOutcomes.Failure("Payment rejected"))
                             }
                         }
 
