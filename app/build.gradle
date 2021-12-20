@@ -93,7 +93,7 @@ dependencies {
     // TODO: Replace when SDK exposes dependency
     implementation "org.threeten:threetenbp:1.4.4"
 
-    implementation "com.github.w-pay:sdk-wpay-android-frames:v0.5.0"
+    implementation "com.github.w-pay:sdk-wpay-android-frames:v0.6.0"
 
     testImplementation "junit:junit:4.13.2"
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"

@@ -57,9 +57,7 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
      * Because the Frames SDK only emits validation changes we need to record them in case the
      * UI is recomposed
      */
-    private var cardNumberValid: Boolean = false
-    private var cardExpiryValid: Boolean = false
-    private var cardCvvValid: Boolean = false
+    private var framesFormValid: Boolean = false
 
     private var framesActionHandler: FramesActionHandler = ::onCaptureCard
 
@@ -69,6 +67,7 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
     private var require3DSNPA: Boolean = false
     private var customerWallet: Wallet? = null
     private lateinit var windowSize: ActionType.AcsWindowSize
+    private lateinit var cardCaptureOptions: ActionType.CaptureCard.Payload
 
     /*
      * If we try to validate a card more than once, we should stop and fail.
@@ -101,7 +100,7 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
     }
 
     override fun selectNewCardPaymentOption() {
-        paymentOption.postValue(PaymentOptions.NewCard(newCardValid()))
+        paymentOption.postValue(PaymentOptions.NewCard(framesFormValid))
     }
 
     override fun selectExistingCardPaymentOption(card: CreditCard) {
@@ -161,10 +160,12 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
     override fun onPageLoaded() {
         debug("onPageLoaded()")
 
-        framesCommand.postValue(cardCaptureCommand(CardCaptureOptions(
+        cardCaptureOptions = cardCaptureOptions(CardCaptureOptions(
             wallet = customerWallet,
             require3DS = require3DSNPA
-        )))
+        ))
+
+        framesCommand.postValue(cardCaptureCommand(cardCaptureOptions))
     }
 
     override fun onProgressChanged(progress: Int) {
@@ -189,12 +190,12 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
 
     override fun onValidationChange(domId: String, isValid: Boolean) {
         debug("onValidationChange($domId, isValid: $isValid)")
+    }
 
-        when(domId) {
-            CARD_NO_DOM_ID -> cardNumberValid = isValid
-            CARD_EXPIRY_DOM_ID -> cardExpiryValid = isValid
-            CARD_CVV_DOM_ID -> cardCvvValid = isValid
-        }
+    override fun onFormValidationChange(isValid: Boolean) {
+        debug("onFormValidationChange(isValid: $isValid)")
+
+        framesFormValid = isValid
 
         /*
          * If the user has already selected to use a new card to pay,
@@ -205,7 +206,7 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
             selectNewCardPaymentOption()
         }
 
-        if (newCardValid()) {
+        if (isValid) {
             framesMessage.postValue("")
         }
     }
@@ -256,7 +257,7 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
                 framesActionHandler = this@PaymentSimulatorModel::onCaptureCard
 
                 framesCommand.postValue(GroupCommand("completeCardCapture",
-                    CompleteActionCommand(CAPTURE_CARD_ACTION, JSONArray().apply {
+                    CompleteActionCommand(CAPTURE_CARD_ACTION, cardCaptureOptions.save, JSONArray().apply {
                         response.challengeResponse?.let { put(it.toJson()) }
                     })
                 ))
@@ -429,9 +430,6 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
 
         Log.e("PaymentSimulator", "Payment error", error)
     }
-
-    private fun newCardValid(): Boolean =
-        cardNumberValid && cardExpiryValid && cardCvvValid
 
     private fun sdkBaseUrl(origin: String): String =
         "${origin}/wow/v1/pay"

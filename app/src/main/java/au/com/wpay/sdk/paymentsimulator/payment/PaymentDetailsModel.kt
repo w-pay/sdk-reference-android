@@ -151,4 +151,8 @@ var fakeCallback = object : FramesView.Callback {
     override fun onValidationChange(domId: String, isValid: Boolean) {
 
     }
+
+    override fun onFormValidationChange(isValid: Boolean) {
+
+    }
 }

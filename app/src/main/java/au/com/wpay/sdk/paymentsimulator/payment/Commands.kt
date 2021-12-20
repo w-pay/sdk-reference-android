@@ -14,9 +14,9 @@ data class CardCaptureOptions(
     val require3DS: Boolean
 )
 
-fun cardCaptureCommand(options: CardCaptureOptions): JavascriptCommand =
+fun cardCaptureCommand(payload: ActionType.CaptureCard.Payload): JavascriptCommand =
     BuildFramesCommand(
-        ActionType.CaptureCard(cardCaptureOptions(options)).toCommand(CAPTURE_CARD_ACTION),
+        ActionType.CaptureCard(payload).toCommand(CAPTURE_CARD_ACTION),
         StartActionCommand(CAPTURE_CARD_ACTION),
         CreateActionControlCommand(CAPTURE_CARD_ACTION, ControlType.CARD_NUMBER, CARD_NO_DOM_ID),
         CreateActionControlCommand(CAPTURE_CARD_ACTION, ControlType.CARD_EXPIRY, CARD_EXPIRY_DOM_ID),
