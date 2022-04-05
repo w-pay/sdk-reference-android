@@ -66,42 +66,56 @@ class MainActivity : ComponentActivity() {
         model: PaymentSimulatorModel,
         navController: NavHostController
     ) {
-        model.paymentInstruments.observe(this, {
+        model.paymentInstruments.observe(this) {
             navController.navigate(Routes.PaymentDetails.route)
-        })
+        }
     }
 
     private fun observeErrors(
         model: PaymentSimulatorModel,
         scaffoldState: ScaffoldState
     ) {
-        model.error.observe(this, {
+        model.error.observe(this) {
             val message = "Something went wrong"
 
             Log.e("PaymentSimulator", message, it)
 
-            model.viewModelScope.launch {
-                scaffoldState.snackbarHostState.showSnackbar(
-                    message = "$message. Check the logs",
-                    actionLabel = "OK",
-                    duration = SnackbarDuration.Indefinite
-                )
-            }
-        })
+            showSnackbar(model, scaffoldState, message)
+        }
+
+        model.apiError.observe(this) {
+            Log.e("PaymentSimulator", it.message)
+
+            showSnackbar(model, scaffoldState, it.message)
+        }
     }
 
     private fun observePaymentOutcome(
         model: PaymentSimulatorModel,
         showDialog: MutableState<Boolean>
     ) {
-        model.paymentOutcome.observe(this, { outcome ->
+        model.paymentOutcome.observe(this) { outcome ->
             when (outcome) {
                 is PaymentOutcomes.NoOutcome -> {}
                 else -> {
                     showDialog.value = true
                 }
             }
-        })
+        }
+    }
+
+    private fun showSnackbar(
+        model: PaymentSimulatorModel,
+        scaffoldState: ScaffoldState,
+        message: String
+    ) {
+        model.viewModelScope.launch {
+            scaffoldState.snackbarHostState.showSnackbar(
+                message = "$message. Check the logs",
+                actionLabel = "OK",
+                duration = SnackbarDuration.Indefinite
+            )
+        }
     }
 }
 

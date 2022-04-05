@@ -2,9 +2,6 @@
 
 This app is designed to show how to use the WPay APIs and SDKs
 
-(Before WPay was released, the initial version was called "Village". Over time, "Village" will be
-removed and replaced)
-
 # Usage
 
 The app shows the usage of the WPay

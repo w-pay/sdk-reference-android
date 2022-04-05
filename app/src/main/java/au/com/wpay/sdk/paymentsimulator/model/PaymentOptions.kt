@@ -1,6 +1,6 @@
 package au.com.wpay.sdk.paymentsimulator.model
 
-import au.com.woolworths.village.sdk.model.CreditCard
+import au.com.wpay.sdk.model.CreditCard
 
 sealed class PaymentOptions {
     data class NewCard(val valid: Boolean) : PaymentOptions() {

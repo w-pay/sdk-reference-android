@@ -1,7 +1,7 @@
 package au.com.wpay.sdk.paymentsimulator.settings
 
-import au.com.woolworths.village.sdk.model.FraudPayload
-import au.com.woolworths.village.sdk.model.FraudPayloadFormat
+import au.com.wpay.sdk.model.FraudPayload
+import au.com.wpay.sdk.model.FraudPayloadFormat
 import au.com.wpay.frames.types.ActionType
 import au.com.wpay.sdk.paymentsimulator.PaymentSimulatorActions
 import au.com.wpay.sdk.paymentsimulator.model.SimulatorCustomerOptions
@@ -76,22 +76,12 @@ fun defaultSettingsProps() =
             amount = "12.40",
             maxUses = 3,
             fraud = false,
-            fraudPayload = object : FraudPayload {
-                override val format: FraudPayloadFormat
-                    get() = FraudPayloadFormat.XML
-
-                override val message: String
-                    get() = """<?xml version="1.0" encoding="utf-8" ?><requestMessage xmlns="urn:schemas-cybersource-com:transaction-data-1.101"><!-- TODO: Fill me --></requestMessage>"""
-
-                override val provider: String
-                    get() = "cybersource"
-
-                override val responseFormat: FraudPayloadFormat
-                    get() = FraudPayloadFormat.XML
-
-                override val version: String
-                    get() = "CyberSourceTransaction_1.101"
-
-            }
+            fraudPayload = FraudPayload(
+                format = FraudPayloadFormat.XML,
+                message = """<?xml version="1.0" encoding="utf-8" ?><requestMessage xmlns="urn:schemas-cybersource-com:transaction-data-1.101"><merchantReferenceCode>TEST98765</merchantReferenceCode><billTo><firstName>Tony</firstName><lastName>Stark</lastName><street1>Malibu Point 10880</street1><city>Malibu</city><state>CA</state><postalCode>90265</postalCode><country>US</country><phoneNumber>678-136-7092</phoneNumber><email>tonystark@cybersource.com</email><ipAddress>10.7.7.7</ipAddress></billTo><shipTo><firstName>CONTAINER</firstName><lastName>TESTING</lastName><street1>100 Elm Street</street1><city>San Mateo</city><state>CA</state><postalCode>94401</postalCode><country>US</country></shipTo><purchaseTotals><currency>USD</currency><grandTotalAmount>3000.00</grandTotalAmount></purchaseTotals><card><expirationMonth>12</expirationMonth><expirationYear>30</expirationYear></card><merchantDefinedData><mddField id="19">Pickup</mddField><mddField id="10">NO</mddField><mddField id="3">ALEXANDRIA Click &amp; Collect, ALEXANDRIA</mddField><mddField id="1">2017-09-05 11:00</mddField><mddField id="2">NSW</mddField><mddField id="12">NO</mddField><mddField id="16">130</mddField><mddField id="23"></mddField><mddField id="17">2017-09-04 15:56</mddField><mddField id="18">2017-09-04 15:56</mddField><mddField id="25">2017-09-05 11:00</mddField><mddField id="20">WEB</mddField><mddField id="57">Normal</mddField><mddField id="58"></mddField><mddField id="59" /><mddField id="60">1002.20</mddField></merchantDefinedData><deviceFingerprintID>18SFXO-26IFULS2</deviceFingerprintID><afsService run="true"/></requestMessage>""",
+                provider = "cybersource",
+                responseFormat = FraudPayloadFormat.XML,
+                version = "CyberSourceTransaction_1.101"
+            )
         )
     )

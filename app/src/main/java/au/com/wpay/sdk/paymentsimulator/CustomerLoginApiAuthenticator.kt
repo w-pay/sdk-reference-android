@@ -1,11 +1,10 @@
 package au.com.wpay.sdk.paymentsimulator
 
 import android.util.Log
-import au.com.woolworths.village.sdk.ApiResult
-import au.com.woolworths.village.sdk.HttpErrorException
-import au.com.woolworths.village.sdk.RequestHeadersFactory
-import au.com.woolworths.village.sdk.auth.ApiAuthenticator
-import au.com.woolworths.village.sdk.auth.HasAccessToken
+import au.com.wpay.sdk.ApiResult
+import au.com.wpay.sdk.HttpFailureError
+import au.com.wpay.sdk.auth.ApiAuthenticator
+import au.com.wpay.sdk.headers.X_API_KEY
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import okhttp3.MediaType.Companion.toMediaType
@@ -15,10 +14,10 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import java.lang.IllegalStateException
 
 class CustomerLoginApiAuthenticator(
-    private val requestHeaders: RequestHeadersFactory,
     private var url: String,
+    private var apiKey: String,
     private var customerId: String
-): ApiAuthenticator<HasAccessToken> {
+): ApiAuthenticator<IdmTokenDetails> {
     override fun authenticate(): ApiResult<IdmTokenDetails> {
         val gson: Gson = GsonBuilder().create()
         val credentials: String = gson.toJson(mapOf(
@@ -30,7 +29,7 @@ class CustomerLoginApiAuthenticator(
         val client = builder.build()
         val req: Request = Request.Builder()
             .url(url)
-            .apply { requestHeaders.createHeaders().forEach { (name, value) -> addHeader(name, value) } }
+            .apply { addHeader(X_API_KEY, apiKey)  }
             .post(credentials.toRequestBody("application/json; charset=utf-8".toMediaType()))
             .build()
 
@@ -44,7 +43,11 @@ class CustomerLoginApiAuthenticator(
                 return ApiResult.Success(result)
             }
 
-            return ApiResult.Error(HttpErrorException(response.code, response.headers.toMultimap(), body))
+            return ApiResult.Error(HttpFailureError(
+                response.code,
+                response.headers.toMultimap().mapValues { it.value.joinToString(";") },
+                body
+            ))
         }
     }
 }

@@ -2,9 +2,9 @@ package au.com.wpay.sdk.paymentsimulator.payment
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import au.com.woolworths.village.sdk.model.CreditCard
-import au.com.woolworths.village.sdk.model.CreditCardStepUp
-import au.com.woolworths.village.sdk.model.PaymentInstrument
+import au.com.wpay.sdk.model.CreditCard
+import au.com.wpay.sdk.model.CreditCardStepUp
+import au.com.wpay.sdk.model.PaymentInstrument
 import au.com.wpay.frames.FramesError
 import au.com.wpay.frames.FramesView
 import au.com.wpay.frames.JavascriptCommand
@@ -13,7 +13,6 @@ import au.com.wpay.frames.types.LogLevel
 import au.com.wpay.sdk.paymentsimulator.model.PaymentOptions
 import au.com.wpay.sdk.paymentsimulator.model.PaymentOutcomes
 import org.threeten.bp.OffsetDateTime
-import java.net.URL
 
 data class PaymentDetailsFramesConfig(
     val config: FramesConfig,
@@ -56,68 +55,29 @@ fun fakeFramesConfig(): PaymentDetailsFramesConfig =
         message = mutableStateOf("")
     )
 
-val fakeCreditCard = object : CreditCard {
-    override val allowed: Boolean
-        get() = true
-
-    override val cardName: String
-        get() = "Bruce Wayne"
-
-    override val cardSuffix: String
-        get() = "1234"
-
-    override val cvvValidated: Boolean
-        get() = true
-
-    override val expired: Boolean
-        get() = false
-
-    override val expiryMonth: String
-        get() = "11"
-
-    override val expiryYear: String
-        get() = "2025"
-
-    override val lastUpdated: OffsetDateTime
-        get() = OffsetDateTime.now()
-
-    override val lastUsed: OffsetDateTime?
-        get() = null
-
-    override val paymentInstrumentId: String
-        get() = "abc123"
-
-    override val paymentToken: String
-        get() = "token"
-
-    override val primary: Boolean
-        get() = true
-
-    override val requiresCVV: Boolean
-        get() = false
-
-    override val scheme: String
-        get() = "VISA"
-
-    override val status: PaymentInstrument.InstrumentStatus
-        get() = PaymentInstrument.InstrumentStatus.VERIFIED
-
-    override val stepUp: CreditCardStepUp
-        get() = object : CreditCardStepUp {
-            override val mandatory: Boolean
-                get() = false
-
-            override val type: String
-                get() = ""
-
-            override val url: URL
-                get() = URL("http://foobar.com")
-
-        }
-
-    override val updateURL: URL
-        get() = URL("http://foobar.com")
-}
+val fakeCreditCard = CreditCard(
+    allowed = true,
+    cardName = "Bruce Wayne",
+    cardSuffix = "1234",
+    cvvValidated = true,
+    expired = false,
+    expiryMonth = "11",
+    expiryYear = "2025",
+    lastUpdated = OffsetDateTime.now(),
+    lastUsed = null,
+    paymentInstrumentId = "abc123",
+    paymentToken = "token",
+    primary = true,
+    requiresCVV = false,
+    scheme = "VISA",
+    status = PaymentInstrument.InstrumentStatus.VERIFIED,
+    updateURL = "http://foobar.com",
+    stepUp = CreditCardStepUp(
+        mandatory = false,
+        type = "",
+        url = "http://foobar.com"
+    )
+)
 
 var fakeCallback = object : FramesView.Callback {
     override fun onComplete(response: String) {

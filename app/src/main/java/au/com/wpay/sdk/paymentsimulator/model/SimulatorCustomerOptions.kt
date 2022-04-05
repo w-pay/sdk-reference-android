@@ -1,13 +1,11 @@
 package au.com.wpay.sdk.paymentsimulator.model
 
-import au.com.woolworths.village.sdk.VillageCustomerOptions
-import au.com.woolworths.village.sdk.Wallet
+import au.com.wpay.sdk.Wallet
 
-class SimulatorCustomerOptions(
-    apiKey: String,
-    baseUrl: String,
-    wallet: Wallet? = null,
-    walletId: String? = null,
-
+data class SimulatorCustomerOptions(
+    val apiKey: String,
+    val baseUrl: String,
+    val wallet: Wallet? = null,
+    val walletId: String? = null,
     val customerId: String
-) : VillageCustomerOptions(apiKey, baseUrl, wallet, walletId)
+)
