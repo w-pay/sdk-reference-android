@@ -1,6 +1,6 @@
 package au.com.wpay.sdk.paymentsimulator.payment
 
-import au.com.woolworths.village.sdk.Wallet
+import au.com.wpay.sdk.Wallet
 import au.com.wpay.frames.*
 import au.com.wpay.frames.types.ActionType
 import au.com.wpay.frames.types.ControlType

@@ -16,7 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import au.com.woolworths.village.sdk.model.CreditCard
+import au.com.wpay.sdk.model.CreditCard
 import au.com.wpay.sdk.paymentsimulator.model.PaymentOptions
 import au.com.wpay.sdk.paymentsimulator.model.PaymentOutcomes
 import au.com.wpay.sdk.paymentsimulator.ui.components.LayoutBox

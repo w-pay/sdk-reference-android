@@ -9,9 +9,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import au.com.woolworths.village.sdk.Wallet
-import au.com.woolworths.village.sdk.model.FraudPayload
+import au.com.wpay.sdk.Wallet
+import au.com.wpay.sdk.model.FraudPayload
 import au.com.wpay.frames.types.ActionType
+import au.com.wpay.sdk.ApiError
 import au.com.wpay.sdk.paymentsimulator.model.SimulatorCustomerOptions
 import au.com.wpay.sdk.paymentsimulator.model.SimulatorMerchantOptions
 import au.com.wpay.sdk.paymentsimulator.model.SimulatorPaymentRequest
@@ -281,6 +282,10 @@ private fun WPaySettingsPreview() {
         }
 
         override fun onError(error: Exception) {
+
+        }
+
+        override fun onApiError(error: ApiError) {
 
         }
     }

@@ -1,6 +1,6 @@
 package au.com.wpay.sdk.paymentsimulator
 
-import au.com.woolworths.village.sdk.auth.HasAccessToken
+import au.com.wpay.sdk.auth.HasAccessToken
 
 class IdmTokenDetails(
     override val accessToken: String,

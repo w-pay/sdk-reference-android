@@ -4,8 +4,6 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import au.com.woolworths.village.sdk.*
-import au.com.woolworths.village.sdk.model.*
 import au.com.wpay.frames.*
 import au.com.wpay.frames.dto.CardCaptureResponse
 import au.com.wpay.frames.dto.ThreeDSError
@@ -13,16 +11,18 @@ import au.com.wpay.frames.dto.ValidateCardResponse
 import au.com.wpay.frames.types.ActionType
 import au.com.wpay.frames.types.FramesConfig
 import au.com.wpay.frames.types.LogLevel
+import au.com.wpay.sdk.*
+import au.com.wpay.sdk.model.*
 import au.com.wpay.sdk.paymentsimulator.model.*
 import au.com.wpay.sdk.paymentsimulator.payment.*
 import au.com.wpay.sdk.paymentsimulator.settings.WPaySettingsActions
 import kotlinx.coroutines.*
 import org.json.JSONArray
-import java.lang.IllegalArgumentException
-import java.lang.IllegalStateException
 
 interface PaymentSimulatorActions {
     fun onError(error: Exception)
+
+    fun onApiError(error: ApiError)
 }
 
 /*
@@ -33,11 +33,12 @@ typealias FramesActionHandler = (String) -> Unit
 
 @Suppress("DeferredIsResult")
 class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsActions, WPaySettingsActions {
-    lateinit var customerSDK: VillageCustomerApiRepository
-    lateinit var merchantSDK: VillageMerchantApiRepository
+    lateinit var customerSDK: WPayCustomerApi
+    lateinit var merchantSDK: WPayMerchantApi
     lateinit var framesConfig: FramesConfig
 
     val error: MutableLiveData<Exception> = MutableLiveData()
+    val apiError: MutableLiveData<ApiError> = MutableLiveData()
     val paymentRequest: MutableLiveData<MerchantPaymentDetails> = MutableLiveData()
     val paymentInstruments: MutableLiveData<List<CreditCard>> = MutableLiveData()
     val paymentOption: MutableLiveData<PaymentOptions> = MutableLiveData(PaymentOptions.NoOption)
@@ -78,6 +79,10 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
         this.error.postValue(error)
     }
 
+    override fun onApiError(error: ApiError) {
+        apiError.postValue(error)
+    }
+
     override fun onCreatePaymentRequest(
         merchant: SimulatorMerchantOptions,
         customer: SimulatorCustomerOptions,
@@ -91,7 +96,7 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
                 createMerchantSDK(merchant, customer, authToken)
                 createFramesConfig(customer, authToken)
 
-                createPaymentRequest(paymentRequest)
+                createPaymentRequest(paymentRequest.toPaymentRequest())
                 listPaymentInstruments()
 
                 fraudPayload = paymentRequest.fraudPayload
@@ -129,7 +134,7 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 when (val result = customerSDK.instruments.delete(card.paymentInstrumentId)) {
-                    is ApiResult.Error -> onError(result.e)
+                    is ApiResult.Error -> onApiError(result.error)
                     is ApiResult.Success -> listPaymentInstruments()
                 }
             }
@@ -228,7 +233,7 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
                 if (response.message == "3DS Validation Rejected" ||
                     response.message == "3DS Validation Failed" ||
                     response.message == "3DS Validation Timeout") {
-                    failPayment(Exception(response.message))
+                    failPayment(response.message ?: "3DS Validation failed")
                 }
 
                 if (response.threeDSError == ThreeDSError.TOKEN_REQUIRED) {
@@ -236,7 +241,7 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
                 }
 
                 if (response.threeDSError == ThreeDSError.VALIDATION_FAILED) {
-                    failPayment(Exception("Three DS Validation Failed"))
+                    failPayment("Three DS Validation Failed")
                 }
 
                 if (response.status?.responseText == "ACCEPTED") {
@@ -273,7 +278,7 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
 
     private fun validateCard(threeDSToken: String) {
         if (validCardAttemptCounter > 1) {
-            failPayment(Exception("Validate card attempt counter exceeded"))
+            failPayment("Validate card attempt counter exceeded")
         }
         else {
             validCardAttemptCounter++
@@ -284,7 +289,7 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
         }
     }
 
-    private fun payWithCard(card: CreditCard) {
+    private suspend fun payWithCard(card: CreditCard) {
         for (retryCount in 1..3) {
             if (paymentOutcome.value is PaymentOutcomes.NoOutcome) {
                 val result = customerSDK.paymentRequests.makePayment(
@@ -304,7 +309,7 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
                         // TODO: Check for 3DS response
 
                         when (result.value.status) {
-                            TransactionSummary.PaymentStatus.APPROVED -> {
+                            TransactionSummaryType.PaymentStatus.APPROVED -> {
                                 paymentOutcome.postValue(PaymentOutcomes.Success)
                             }
                             else -> {
@@ -316,7 +321,7 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
                     }
 
                     is ApiResult.Error -> {
-                        failPayment(result.e)
+                        failPayment(result.error)
 
                         break
                     }
@@ -332,17 +337,16 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
         customerWallet = customer.wallet
 
         authToken?.let {
-            val options = VillageCustomerOptions(
+            val options = WPayCustomerOptions(
                 apiKey = customer.apiKey,
                 baseUrl = sdkBaseUrl(customer.baseUrl),
-                wallet = customer.wallet,
+                // see the docs on how we can use different token types.
+                accessToken = ApiTokenType.StringToken(authToken),
+                wallet = customer.wallet ?: Wallet.MERCHANT,
                 walletId = customer.walletId
             )
 
-            customerSDK = createCustomerSDK(
-                options = options,
-                token = it
-            )
+            customerSDK = createCustomerSDK(options)
         }
     }
 
@@ -355,16 +359,15 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
         require3DSNPA = merchant.require3DSNPA
 
         authToken?.let {
-            val options = VillageMerchantOptions(
+            val options = WPayMerchantOptions(
                 apiKey = customer.apiKey,
                 baseUrl = sdkBaseUrl(merchant.baseUrl),
-                wallet = customer.wallet,
+                // see the docs on how we can use different token types.
+                accessToken = ApiTokenType.StringToken(authToken),
+                wallet = customer.wallet ?: Wallet.MERCHANT,
             )
 
-            merchantSDK = createMerchantSDK(
-                options = options,
-                token = it
-            )
+            merchantSDK = createMerchantSDK(options)
         }
     }
 
@@ -378,22 +381,22 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
             )
         }
 
-    private fun createPaymentRequest(paymentRequest: NewPaymentRequest) =
+    private suspend fun createPaymentRequest(paymentRequest: NewPaymentRequest) =
         when (val result = merchantSDK.payments.createPaymentRequest(paymentRequest)) {
             is ApiResult.Success -> getPaymentRequest(result.value.paymentRequestId)
-            is ApiResult.Error -> onError(result.e)
+            is ApiResult.Error -> onApiError(result.error)
         }
 
-    private fun getPaymentRequest(paymentRequestId: String) =
+    private suspend fun getPaymentRequest(paymentRequestId: String) =
         when (val result = merchantSDK.payments.getPaymentRequestDetailsBy(paymentRequestId)) {
             is ApiResult.Success -> paymentRequest.postValue(result.value)
-            is ApiResult.Error -> onError(result.e)
+            is ApiResult.Error -> onApiError(result.error)
         }
 
-    private fun listPaymentInstruments(): List<CreditCard>? =
+    private suspend fun listPaymentInstruments(): List<CreditCard>? =
         when (val result = customerSDK.instruments.list()) {
             is ApiResult.Error -> {
-                onError(result.e)
+                onApiError(result.error)
 
                 null
             }
@@ -418,17 +421,23 @@ class PaymentSimulatorModel : ViewModel(), FramesView.Callback, PaymentDetailsAc
         return when (val result = authenticator.authenticate()) {
             is ApiResult.Success -> result.value.accessToken
             is ApiResult.Error -> {
-                onError(result.e)
+                onApiError(result.error)
 
                 null
             }
         }
     }
 
-    private fun failPayment(error: Exception) {
-        paymentOutcome.postValue(PaymentOutcomes.Failure(error.message!!))
+    private fun failPayment(error: ApiError) {
+        paymentOutcome.postValue(PaymentOutcomes.Failure(error.message))
 
-        Log.e("PaymentSimulator", "Payment error", error)
+        Log.e("PaymentSimulator", "Payment error - $error")
+    }
+
+    private fun failPayment(error: String) {
+        paymentOutcome.postValue(PaymentOutcomes.Failure(error))
+
+        Log.e("PaymentSimulator", "Payment error - $error")
     }
 
     private fun sdkBaseUrl(origin: String): String =
