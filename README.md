@@ -5,7 +5,7 @@ This app is designed to show how to use the WPay APIs and SDKs
 # Usage
 
 The app shows the usage of the WPay
-- [Android SDK](https://github.com/w-pay/sdk-wpay-android)
+- [JVM API SDK](https://github.com/w-pay/sdk-wpay-jvm)
 - [Android Frames SDK](https://github.com/w-pay/sdk-wpay-android-frames/)
 
 The workflow the app demonstrates is the creation of a payment request by a given merchant, and
